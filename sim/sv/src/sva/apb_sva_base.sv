@@ -28,6 +28,7 @@ module apb_sva_base (apb_master_itf apb_itf);
     assign apb_pready  = apb_itf.pready;
     assign apb_pslverr = apb_itf.pslverr;   
 
+    // Property
     property APB_RESET_p;
         @(posedge apb_pclk)
         ($past(apb_presetn) == 0) |-> (apb_psel == 0 && apb_penable == 0);
@@ -63,19 +64,109 @@ module apb_sva_base (apb_master_itf apb_itf);
         (apb_psel && apb_pwrite) |-> (!$isunknown(apb_pstrb));
     endproperty
 
-    assert property (APB_RESET_p)
-                    else `uvm_error("APB_SVA", "Reset error!");
-    assert property (APB_SETUP_TO_ACCESS_p)
-                    else `uvm_error("APB_SVA", "Wrong spec: APB don't change SETUP to ACCESS");
-    assert property (APB_PENABLE_VALID_p)
-                    else `uvm_error("APB_SVA", "Wrong spec: penable == 1 but psel != 1");
-    assert property (APB_ADDR_CONTROL_STABLE_p)
-                    else `uvm_error("APB_SVA", "Wrong spec: paddr and pwrtie no stable");
-    assert property (APB_WDATA_STABLE_p)
-                    else `uvm_error("APB_SVA", "Wrong spec: write mode but pwdata and pstrb no stable");
-    assert property (APB_READ_STRB_LOW_p)
-                    else `uvm_error("APB_SVA", "Wrong spec: read mode but pstrb != 0");
-    assert property (APB_WRITE_STRB_VALID_p)
-                    else `uvm_error("APB_SVA", "Wrong spec: write mode but pstrb have x and z");
+    property CHECK_TX_DATA_WR_p;
+        @(posedge apb_pclk) disable iff (!apb_presetn)
+        (apb_psel && apb_penable && apb_pwrite && apb_pready && apb_paddr == 12'h000)
+        |=> (apb_uart_test_top.dut.tx_data == $past(apb_pwdata[7:0]));
+    endproperty
+
+    property CHECK_CFG_DATA_BIT_WR_p;
+        @(posedge apb_pclk) disable iff (!apb_presetn)
+        (apb_psel && apb_penable && apb_pwrite && apb_pready && apb_paddr == 12'h008)
+        |=> (apb_uart_test_top.dut.data_bit_num == $past(apb_pwdata[1:0]));
+    endproperty
+
+    property CHECK_CFG_STOP_BIT_WR_p;
+        @(posedge apb_pclk) disable iff (!apb_presetn)
+        (apb_psel && apb_penable && apb_pwrite && apb_pready && apb_paddr == 12'h008)
+        |=> (apb_uart_test_top.dut.stop_bit_num == $past(apb_pwdata[2]));
+    endproperty
+
+    property CHECK_CFG_PARITY_EN_WR_p;
+        @(posedge apb_pclk) disable iff (!apb_presetn)
+        (apb_psel && apb_penable && apb_pwrite && apb_pready && apb_paddr == 12'h008)
+        |=> (apb_uart_test_top.dut.parity_en == $past(apb_pwdata[3]));
+    endproperty
+
+    property CHECK_CFG_PARITY_TYPE_WR_p;
+        @(posedge apb_pclk) disable iff (!apb_presetn)
+        (apb_psel && apb_penable && apb_pwrite && apb_pready && apb_paddr == 12'h008)
+        |=> (apb_uart_test_top.dut.parity_type == $past(apb_pwdata[4]));
+    endproperty
+
+    property CHECK_CTRL_START_TX_WR_p;
+        @(posedge apb_pclk) disable iff (!apb_presetn)
+        (apb_psel && apb_penable && apb_pwrite && apb_pready && apb_paddr == 12'h00C)
+        |=> (apb_uart_test_top.dut.start_tx == $past(apb_pwdata[0]));
+    endproperty
+
+    property ERR_WRITE_RO_RX_p;
+        @(posedge apb_pclk) disable iff (!apb_presetn)
+        (apb_psel && apb_penable && apb_pwrite && apb_pready && apb_paddr == 12'h004)
+        |-> (apb_pslverr == 1'b1);
+    endproperty
+
+    property ERR_WRITE_INVALID_ADDR_p;
+        @(posedge apb_pclk) disable iff (!apb_presetn)
+        (apb_psel && apb_penable && apb_pwrite && apb_pready && 
+        !(apb_paddr inside {12'h000, 12'h008, 12'h00C}))
+        |-> (apb_pslverr == 1'b1);
+    endproperty
+
+    property ERR_WRITE_VALID_ADDR_p;
+        @(posedge apb_pclk) disable iff (!apb_presetn)
+        (apb_psel && apb_penable && apb_pwrite && apb_pready && 
+        (apb_paddr inside {12'h000, 12'h008, 12'h00C}))
+        |-> (apb_pslverr == 1'b0);
+    endproperty
+
+    // Assertion
+    APB_RESET: assert property (APB_RESET_p)
+                    else `uvm_error("APB_SVA", "\nReset error!\n");
+
+    APB_SETUP_TO_ACCESS: assert property (APB_SETUP_TO_ACCESS_p)
+                    else `uvm_error("APB_SVA", "\nWrong spec: APB don't change SETUP to ACCESS\n");
+
+    APB_PENABLE_VALID: assert property (APB_PENABLE_VALID_p)
+                    else `uvm_error("APB_SVA", "\nWrong spec: penable == 1 but psel != 1\n");
+
+    APB_ADDR_CONTROL_STABLE: assert property (APB_ADDR_CONTROL_STABLE_p)
+                    else `uvm_error("APB_SVA", "\nWrong spec: paddr and pwrtie no stable\n");
+
+    APB_WDATA_STABLE: assert property (APB_WDATA_STABLE_p)
+                    else `uvm_error("APB_SVA", "\nWrong spec: write mode but pwdata and pstrb no stable\n");
+
+    APB_READ_STRB_LOW: assert property (APB_READ_STRB_LOW_p)
+                    else `uvm_error("APB_SVA", "\nWrong spec: read mode but pstrb != 0\n");
+
+    APB_WRITE_STRB_VALID: assert property (APB_WRITE_STRB_VALID_p)
+                    else `uvm_error("APB_SVA", "\nWrong spec: write mode but pstrb have x and z\n");
+
+    ASSERT_TX_DATA: assert property (CHECK_TX_DATA_WR_p)
+                    else `uvm_error("APB_SVA", "\nTX_DATA register update failed\n");
+
+    ASSERT_CFG_DATA_BIT: assert property (CHECK_CFG_DATA_BIT_WR_p)
+                    else `uvm_error("APB_SVA", "\nCONFIG data_bit_num update failed\n");
+
+    ASSERT_CFG_STOP_BIT: assert property (CHECK_CFG_STOP_BIT_WR_p)
+                    else `uvm_error("APB_SVA", "\nCONFIG stop_bit_num update failed\n");
+
+    ASSERT_CFG_PARITY_EN: assert property (CHECK_CFG_PARITY_EN_WR_p)
+                    else `uvm_error("APB_SVA", "\nCONFIG parity_en update failed\n");
+
+    ASSERT_CFG_PARITY_TYPE: assert property (CHECK_CFG_PARITY_TYPE_WR_p)
+                    else `uvm_error("APB_SVA", "\nCONFIG parity_type update failed\n");
+
+    ASSERT_CTRL_START_TX: assert property (CHECK_CTRL_START_TX_WR_p)
+                    else `uvm_error("APB_SVA", "\nCONTROL start_tx update failed\n");
+
+    CHECK_ERR_RO_RX: assert property (ERR_WRITE_RO_RX_p)
+                    else `uvm_error("APB_SVA", "\nWrite to RO Register (RX) did NOT assert PSLVERR!\n");
+
+    CHECK_ERR_INVALID: assert property (ERR_WRITE_INVALID_ADDR_p)
+                    else `uvm_error("APB_SVA", "\nWrite to Invalid Address did NOT assert PSLVERR!\n");
+
+    CHECK_OK_VALID: assert property (ERR_WRITE_VALID_ADDR_p)
+                    else `uvm_error("APB_SVA", "\nValid Write asserted PSLVERR unexpectedly!\n");
 
 endmodule

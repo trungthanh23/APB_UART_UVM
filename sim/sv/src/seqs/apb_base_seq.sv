@@ -5,6 +5,7 @@ class apb_base_seq extends uvm_sequence #(apb_master_transaction);
 
     string reg_name, data_desc;
     string d_str, s_str, p_str;
+    bit [31:0] mask_val;
 
     // Contructor
     function new(string name = "apb_base_seq");
@@ -99,17 +100,24 @@ class apb_write_regs_seq extends apb_base_seq;
                 default:       d_str = "8-bit Data";
             endcase
             s_str = (stop_bit_num == APB_CFG_ONE_STOP_BIT) ? "1 Stop Bit" : "2 Stop Bits";
-            p_str = (parity_en == APB_CFG_PARITY_DIS) ? "Parity Disabled" : "Parity Enabled";
+            p_str = (parity_en == APB_CFG_PARITY_DIS) ? "Parity Disabled" : $sformatf("Parity Enabled (%s)", (parity_type ? "Even" : "Odd"));
             data_desc = $sformatf("[%s, %s, %s]", d_str, s_str, p_str);
         end 
         else if (addr == `ADDR_CTRL_REG) begin
             data_desc = "START UART TX";
         end
         else begin
-            data_desc = $sformatf("Value: 0x%0h", data);
+            case (data_bit_num)
+                APB_DATA_5BIT: mask_val = 32'h1F; 
+                APB_DATA_6BIT: mask_val = 32'h3F; 
+                APB_DATA_7BIT: mask_val = 32'h7F; 
+                default:       mask_val = 32'hFF; 
+            endcase
+            
+            data_desc = $sformatf("Value: 0x%0h", data & mask_val);
         end
 
-        `uvm_info("APB_WRITE_SEQ", $sformatf("===> [Write APB] %s(%0h): \n%s", reg_name, addr, data_desc), UVM_LOW)
+        `uvm_info("APB_WRITE_SEQ", $sformatf("\n\n====================\n=== [Write APB] ===\n%s - 0x%0h\n%s\n====================\n", reg_name, addr, data_desc), UVM_LOW)
         
         `uvm_do_with(req, {
             req.apb_addr.size()  == 1;
@@ -135,7 +143,8 @@ class apb_read_regs_seq extends apb_base_seq;
 
     // Variable
     rand bit [11:0] addr;
-    bit [31:0]      read_data; 
+    bit [31:0]      read_data;
+    string          stt_desc; 
 
     //Contructor
     function new(string name = "apb_read_regs_seq");
@@ -167,12 +176,72 @@ class apb_read_regs_seq extends apb_base_seq;
             req.bus_len      == 1;
         })
         read_data = req.apb_prdata[0]; 
-        `uvm_info("APB_READ_SEQ", $sformatf("===> [Read APB] %s(0x%0h): %0h",reg_name, addr, read_data), UVM_MEDIUM)
+        //`uvm_info("APB_READ_SEQ", $sformatf("\n\n====================\n=== [Read APB] ===\n%s - 0x%0h\n%0h\n====================\n",reg_name, addr, read_data), UVM_MEDIUM)
+        stt_desc = "";
+        if (addr == `ADDR_STT_REG) begin
+            if (read_data[1]) stt_desc = {stt_desc, " RX Done"};
+            else              stt_desc = {stt_desc, " RX Not Done"};
+
+            if (read_data[2]) stt_desc = {stt_desc, " Parity Error"};
+            
+            if (read_data[0]) stt_desc = {stt_desc, " TX Done"};
+            
+            if (read_data == 0) stt_desc = " [IDLE/OK]";
+
+            stt_desc = {"Status:", stt_desc};
+        end 
+        else if (addr == `ADDR_RX_DATA) begin
+            stt_desc = $sformatf("Value: 0x%02h", read_data);
+        end
+
+        `uvm_info("APB_READ_SEQ", $sformatf("\n\n====================\n=== [Read APB] ===\nReg: %s (0x%0h)\n%s\n====================\n", reg_name, addr, stt_desc), UVM_MEDIUM)
     endtask : body
 
 endclass : apb_read_regs_seq
 
+class apb_write_error_addr_seq extends apb_base_seq;
+    `uvm_object_utils(apb_write_error_addr_seq)
 
+    rand bit [11:0] addr;
+    rand bit [31:0] data;
+
+    // Constraint
+    constraint c_error_addr {
+        addr inside {12'h004, 12'h010} || (addr > 12'h010);
+    }
+
+    function new(string name = "apb_write_error_addr_seq");
+        super.new(name);
+    endfunction : new
+
+
+    virtual task body();
+        `uvm_info(get_type_name(), $sformatf("\n\n====================\nExecuting Error Write Sequence to Addr: 0x%0h\n\n====================", addr), UVM_LOW)
+        
+        `uvm_create(req)
+        
+        req.c_valid_uart_addr.constraint_mode(0); 
+
+        if (!req.randomize() with {
+            apb_addr[0]  == addr;      
+            apb_data[0]  == data;
+            apb_write[0] == 1'b1; 
+            apb_strb[0]  == 4'hF;
+            bus_len      == 1;
+            apb_addr.size()  == 1;
+            apb_data.size()  == 1;
+            apb_write.size() == 1;
+            apb_strb.size()  == 1;
+            apb_delay.size() == 1;
+            apb_prdata.size()== 1;
+        }) begin
+            `uvm_fatal("SEQ", "Randomization failed in apb_write_error_addr_seq")
+        end
+
+        `uvm_send(req)
+    endtask : body
+
+endclass : apb_write_error_addr_seq
 
 // class apb_write_tx_data_seq extends apb_base_seq;
     

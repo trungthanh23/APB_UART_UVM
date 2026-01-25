@@ -48,5 +48,5 @@ $UVM_HOME/src/uvm_pkg.sv
 ../sv/src/uart_vip/itf/uart_rx_if.sv
 ../sv/src/apb_vip/inc/apb_pkg.sv
 ../sv/src/uart_vip/inc/uart_pkg.sv
-../tb/inc/uart_apb_pkg.sv
-../tb/test/uart_apb_test_top.sv
+../tb/inc/apb_uart_pkg.sv
+../tb/test/apb_uart_test_top.sv

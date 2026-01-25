@@ -14,3 +14,94 @@
 # //
 # vsim.wlf opened as dataset "vsim"
 # do wave.do
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/clk'.
+# Executing ONERROR command at macro ./wave.do line 3
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/reset_n'.
+# Executing ONERROR command at macro ./wave.do line 4
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/pclk'.
+# Executing ONERROR command at macro ./wave.do line 5
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/preset_n'.
+# Executing ONERROR command at macro ./wave.do line 6
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/psel'.
+# Executing ONERROR command at macro ./wave.do line 7
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/penable'.
+# Executing ONERROR command at macro ./wave.do line 8
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/pwrite'.
+# Executing ONERROR command at macro ./wave.do line 9
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/pstrb'.
+# Executing ONERROR command at macro ./wave.do line 10
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/paddr'.
+# Executing ONERROR command at macro ./wave.do line 11
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/pwdata'.
+# Executing ONERROR command at macro ./wave.do line 12
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/rx'.
+# Executing ONERROR command at macro ./wave.do line 13
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/cts_n'.
+# Executing ONERROR command at macro ./wave.do line 14
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/pready'.
+# Executing ONERROR command at macro ./wave.do line 15
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/pslverr'.
+# Executing ONERROR command at macro ./wave.do line 16
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/prdata'.
+# Executing ONERROR command at macro ./wave.do line 17
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/tx'.
+# Executing ONERROR command at macro ./wave.do line 18
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/rts_n'.
+# Executing ONERROR command at macro ./wave.do line 19
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/clk_tx'.
+# Executing ONERROR command at macro ./wave.do line 20
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/clk_rx'.
+# Executing ONERROR command at macro ./wave.do line 21
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/tx_data'.
+# Executing ONERROR command at macro ./wave.do line 22
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/rx_data'.
+# Executing ONERROR command at macro ./wave.do line 23
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/data_bit_num'.
+# Executing ONERROR command at macro ./wave.do line 24
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/stop_bit_num'.
+# Executing ONERROR command at macro ./wave.do line 25
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/parity_en'.
+# Executing ONERROR command at macro ./wave.do line 26
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/parity_type'.
+# Executing ONERROR command at macro ./wave.do line 27
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/start_tx'.
+# Executing ONERROR command at macro ./wave.do line 28
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/tx_done'.
+# Executing ONERROR command at macro ./wave.do line 29
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/rx_done'.
+# Executing ONERROR command at macro ./wave.do line 30
+# ** Error: (vish-4014) No objects found matching '/uart_apb_test_top/dut/parity_error'.
+# Executing ONERROR command at macro ./wave.do line 31
+add wave -position insertpoint vsim:/apb_uart_test_top/dut/*
+dataset reload -f
+# vsim:/apb_uart_test_top/dut
+dataset reload -f
+# vsim:/apb_uart_test_top/dut
+dataset reload -f
+# vsim:/apb_uart_test_top/dut
+dataset reload -f
+# vsim:/apb_uart_test_top/dut
+dataset reload -f
+# vsim:/apb_uart_test_top/dut
+dataset reload -f
+# vsim:/apb_uart_test_top/dut
+dataset reload -f
+# vsim:/apb_uart_test_top/dut
+dataset reload -f
+# vsim:/apb_uart_test_top/dut
+dataset reload -f
+# vsim:/apb_uart_test_top/dut
+dataset reload -f
+# vsim:/apb_uart_test_top/dut
+dataset reload -f
+# vsim:/apb_uart_test_top/dut
+dataset reload -f
+# vsim:/apb_uart_test_top/apb_if
+dataset reload -f
+# vsim:/apb_uart_test_top/apb_if
+dataset reload -f
+# vsim:/apb_uart_test_top/apb_if
+dataset reload -f
+# vsim:/apb_uart_test_top/apb_if
+dataset reload -f
+# vsim:/apb_uart_test_top/apb_if

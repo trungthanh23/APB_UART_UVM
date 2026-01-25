@@ -25,9 +25,9 @@ ldflags_dyn="-shared"
 echo "c++ -Wno-deprecated ${ccflags_dyn} ${ldflags_dyn} -DQUESTA -I ${MTI_HOME}/include -o uvm_dpi.so ${UVM_HOME}/src/dpi/uvm_dpi.cc"
 c++ -Wno-deprecated ${ccflags_dyn} ${ldflags_dyn} -DQUESTA -I ${MTI_HOME}/include -o uvm_dpi.so ${UVM_HOME}/src/dpi/uvm_dpi.cc
 
-export TEST_NAME="uart_apb_simple_test" # Test name for running simulation with UVM
+export TEST_NAME="apb_uart_simple_test" # Test name for running simulation with UVM
 
-TOP_TB=uart_apb_test_top # name top testbench
+TOP_TB=apb_uart_test_top # name top testbench
 
 #--------------------------------------------------------------------------------------
 # Prepare workspace

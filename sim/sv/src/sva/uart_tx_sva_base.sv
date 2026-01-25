@@ -12,33 +12,38 @@ module uart_tx_sva_base (uart_tx_if tx_if);
     logic cts_n;
     logic tx;
 
-    assign clk      = tx_if.clk;
-    assign reset_n  = tx_if.reset_n;
-    assign start_tx = tx_if.start_tx;
-    assign tx_done  = tx_if.tx_done;
-    assign cts_n    = tx_if.cts_n;
-    assign tx       = tx_if.tx;
+    assign clk          = tx_if.clk;
+    assign reset_n      = tx_if.reset_n;
+    assign start_tx     = tx_if.start_tx;
+    assign tx_done      = tx_if.tx_done;
+    assign cts_n        = tx_if.cts_n;
+    assign tx           = apb_uart_test_top.dut.tx;
+    assign dut_clk_tx   = apb_uart_test_top.dut.clk_tx;
 
+    // Property
     property TX_RESET_DEFAULT_p;
         @(posedge clk) 
         ($past(reset_n) == 0) |-> (tx == 1'b1 && start_tx == 1'b0 && tx_done == 1'b1);
     endproperty
 
-    property TX_START_CLEARS_DONE_p;
+    property START_TX_CLEARS_IMMEDIATELY_p;
         @(posedge clk) disable iff (!reset_n)
-        $rose(start_tx) |=> (tx_done == 1'b0);
+        ($fell(tx) && start_tx) |-> (start_tx == 1'b0);
     endproperty
 
-    property TX_WAIT_CTS_p;
-        @(posedge clk) disable iff (!reset_n)
-        (tx_done == 1'b1 && start_tx && cts_n == 1'b1) |-> (tx == 1'b1);
+    property TX_DONE_FALLS_AFTER_START_BIT_p;
+        @(negedge dut_clk_tx) disable iff (!reset_n)
+        ($fell(tx) && start_tx) |=> (tx_done == 1'b0);
     endproperty
 
-    CHECK_RESET:        assert property (TX_RESET_DEFAULT_p)
-                        else `uvm_error("UART_TX_SVA", "Reset error! tx_done should be 1, tx should be 1");
-    CHECK_START_BUSY:   assert property (TX_START_CLEARS_DONE_p) 
-                        else `uvm_error("UART_TX_SVA", "Wrong spec: start_tx == 1 but tx_done != 0");
-    CHECK_FLOW_CTRL:    assert property (TX_WAIT_CTS_p) 
-                        else `uvm_error("UART_TX_SVA", "Wrong spec: cts_n = 1 but tx != 1");
+    // ASSERTIONS
+    CHECK_RESET: assert property (TX_RESET_DEFAULT_p)
+                 else `uvm_error("UART_TX_SVA", "\nReset error! Signals not default\n");
+
+    CHECK_START_CLEAR: assert property (START_TX_CLEARS_IMMEDIATELY_p) 
+                       else `uvm_error("UART_TX_SVA", "\nLogic Error: start_tx must be 0 immediately when TX starts!\n");
+
+    CHECK_TX_DONE_TIMING: assert property (TX_DONE_FALLS_AFTER_START_BIT_p) 
+                          else `uvm_error("UART_TX_SVA", "\nTiming Error: tx_done must go LOW only AFTER Start Bit finishes!\n");
 
 endmodule

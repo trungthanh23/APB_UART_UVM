@@ -4,6 +4,7 @@
 //  Design Library
 -y  ../../hdl
 ../../hdl/uart.sv
+//../../hdl/uart_1.sv
 // ../../hdl/baudrate_gen_block.sv
 // ../../hdl/tx_block.sv
 // ../../hdl/rx_block.sv

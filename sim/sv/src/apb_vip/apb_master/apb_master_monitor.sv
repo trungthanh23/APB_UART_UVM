@@ -61,16 +61,15 @@ class apb_master_monitor extends uvm_monitor;
                     item.apb_data[0] = master_itf.pwdata;
                 end else begin
                     item.apb_data[0] = master_itf.prdata;
-                    `uvm_info("APB_MASTER_MON", $sformatf("Slave returned data: 0x%0h", master_itf.prdata), UVM_MEDIUM)
                 end
 
                 master_monitor_port.write(item);
                 num_trans++;
 
                 if (master_itf.pwrite) begin
-                    `uvm_info("APB_MASTER_MON", "Write analysis port done!", UVM_MEDIUM)
+                    `uvm_info("APB_MASTER_MON", "\n\n====================\nWrite analysis port done!\n====================\n", UVM_MEDIUM)
                 end else begin
-                    `uvm_info("APB_MASTER_MON", "Read analysis port done!", UVM_MEDIUM)
+                    `uvm_info("APB_MASTER_MON", "\n\n====================\nRead analysis port done!\n====================\n", UVM_MEDIUM)
                 end
                 
             end

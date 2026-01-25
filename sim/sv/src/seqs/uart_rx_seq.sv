@@ -14,8 +14,10 @@ class uart_rx_seq extends uvm_sequence #(uart_rx_transaction);
     endtask : pre_start
 
     virtual task body();
-        req = uart_rx_transaction::type_id::create("req");
-        `uvm_do(req)
+        forever begin
+            req = uart_rx_transaction::type_id::create("req");
+            `uvm_do(req)
+        end
     endtask : body
     
 endclass : uart_rx_seq

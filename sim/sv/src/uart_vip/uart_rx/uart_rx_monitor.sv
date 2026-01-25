@@ -81,24 +81,24 @@ class uart_rx_monitor extends uvm_monitor;
                 parity ^= item.uart_rx_data_frame[i]; 
                 #(num_of_clk * sys_clk_period_ns * 1ns);
             end
-            `uvm_info("UART_RX_MON", $sformatf("===> COLLECTED DATA: 0x%h", item.uart_rx_data_frame), UVM_LOW)
+            `uvm_info("UART_RX_MON", $sformatf("\n\n============================\n=== COLLECTED DATA: 0x%h ===\n============================\n", item.uart_rx_data_frame), UVM_LOW)
 
             // Checking parity if parity is enable
             if (uart_rx_cfg.parity_en) begin
                 if(uart_rx_cfg.parity_type == UART_PARITY_ODD) 
                     parity = ~parity;
                 if (rx_if.driver_rx_cb.rx !== parity) begin
-                    `uvm_error("UART_RX_MON", $sformatf("Parity bit Error! Expected: %b, Received: %b", parity, rx_if.driver_rx_cb.rx))
+                    `uvm_error("UART_RX_MON", $sformatf("\n\n====================\nParity bit Error! Expected: %b, Received: %b\n====================\n", parity, rx_if.driver_rx_cb.rx))
                     item.parity_error = 1'b1; 
                 end else begin
-                    `uvm_info("UART_RX_MON", $sformatf("Parity bit deteced"), UVM_MEDIUM)
+                    `uvm_info("UART_RX_MON", $sformatf("\n\n===========================\nParity bit deteced - %s\n===========================\n", (rx_if.driver_rx_cb.rx ? "Even" : "Odd")), UVM_MEDIUM)
                 end
                 #(num_of_clk * sys_clk_period_ns * 1ns);
             end
 
             // Colect and checking stop bit
             if (rx_if.driver_rx_cb.rx !== 1'b1) begin
-                `uvm_error("UART_RX_MON", "Framing Error! Stop bit is not HIGH.")
+                `uvm_error("UART_RX_MON", "\n\n====================\nFraming Error! Stop bit is not HIGH.\n====================\n")
                 item.stop_error = 1'b1;
             end else begin
                 
@@ -106,11 +106,11 @@ class uart_rx_monitor extends uvm_monitor;
             if (uart_rx_cfg.stop_bit_num == UART_TWO_STOP_BIT) begin
                 #(num_of_clk * sys_clk_period_ns * 1ns);
                 if (rx_if.driver_rx_cb.rx !== 1'b1) 
-                    `uvm_error("UART_RX_MON", "Framing Error! 2nd Stop bit is not HIGH.")
+                    `uvm_error("UART_RX_MON", "\n\n====================\nFraming Error! 2nd Stop bit is not HIGH.\n====================\n")
             end
 
             // Send the transaction
-            `uvm_info("UART_RX_MON", $sformatf("Collected: %h", item.uart_rx_data_frame), UVM_HIGH)
+            `uvm_info("UART_RX_MON", $sformatf("\n\n====================\nCollected: %h\n====================\n", item.uart_rx_data_frame), UVM_HIGH)
             rx_monitor_port.write(item);
         end
     endtask : run_phase

@@ -117,7 +117,7 @@ class uart_tx_driver extends uvm_driver #(uart_tx_transaction);
                                 $sformatf("Parity(%s)", uart_tx_cfg.parity_type.name()) : "No-Parity";
             s_str = (uart_tx_cfg.stop_bit_num == UART_TWO_STOP_BIT) ? "2-stop" : "1-stop";
 
-            `uvm_info("UART_TX_DRV", $sformatf("Driving UART TX Transaction: \nData = 0x%h | DATA FRAME: [%s, %s, %s]", 
+            `uvm_info("UART_TX_DRV", $sformatf("\n\n====================\nDriving UART TX Transaction: \nData = 0x%h\nDATA FRAME: [%s, %s, %s]\n====================\n", 
                                     req.uart_tx_data_frame, d_str, p_str, s_str), UVM_LOW)
 
             parity = 0;
@@ -129,7 +129,7 @@ class uart_tx_driver extends uvm_driver #(uart_tx_transaction);
            // Start transfer
             tx_if.tx = 1'b0;
             tx_if.uart_frame_tx = req.uart_tx_data_frame;
-            `uvm_info("UART_TX_DRV", $sformatf("Start transfer data = 0x%0h (%0b)", req.uart_tx_data_frame, req.uart_tx_data_frame), UVM_MEDIUM)
+            `uvm_info("UART_TX_DRV", $sformatf("\n\n====================\nStart transfer\n====================\n"), UVM_MEDIUM)
             #(num_of_clk * sys_clk_period_ns * 1ns);
             
             // Driving the data
@@ -147,11 +147,11 @@ class uart_tx_driver extends uvm_driver #(uart_tx_transaction);
                 parity = ~parity;
               end
               if (req.inject_parity_error) begin
-                `uvm_info("UART_TX_DRV", "Injecting Parity Error...", UVM_MEDIUM)
+                `uvm_info("UART_TX_DRV", "\n\n====================\nInjecting Parity Error...\n====================\n", UVM_MEDIUM)
                 parity = ~parity; 
             end
               tx_if.tx <= parity;
-              `uvm_info("UART_TX_DRV", $sformatf("Drive parity_bit %0b", parity), UVM_MEDIUM)
+              `uvm_info("UART_TX_DRV", $sformatf("\n\n====================\nDrive parity_bit %0b\n====================\n", parity), UVM_MEDIUM)
               #(num_of_clk * sys_clk_period_ns * 1ns);
             end
 
@@ -160,7 +160,7 @@ class uart_tx_driver extends uvm_driver #(uart_tx_transaction);
                 tx_if.tx <= req.inject_stop_error ? 1'b0 : 1'b1;
                 #(num_of_clk * sys_clk_period_ns * 1ns);
             end
-            `uvm_info("UART_TX_DRV", "Done tx transaction send to rx", UVM_MEDIUM)
+            `uvm_info("UART_TX_DRV", "\n\n==============================\nDone tx vip transaction send to rx\n==============================\n", UVM_MEDIUM)
             seq_item_port.item_done();
         end
     endtask : get_and_drive
