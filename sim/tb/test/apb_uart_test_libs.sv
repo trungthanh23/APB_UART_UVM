@@ -291,11 +291,13 @@ endclass : apb_write_rand_cfg_test
 class apb_write_addr_error_test extends apb_uart_base_test;
     `uvm_component_utils(apb_write_addr_error_test)
 
+    apb_write_regs_seq       apb_w_seq;
+    apb_read_regs_seq        apb_r_seq;
     apb_write_error_addr_seq apb_err_seq;
 
     function new(string name = "apb_write_addr_error_test", uvm_component parent = null);
         super.new(name, parent);
-    endfunction : new
+    endfunction
 
     virtual task run_phase(uvm_phase phase);
         phase.raise_objection(this);
@@ -303,37 +305,51 @@ class apb_write_addr_error_test extends apb_uart_base_test;
         wait(apb_m_if.presetn === 1'b0); 
         wait(apb_m_if.presetn === 1'b1);
         repeat(10) @(posedge apb_m_if.pclk);
-        `uvm_info("APB_UART_TEST", "System Reset Done. Starting Error Tests...", UVM_LOW)
 
+        apb_w_seq   = apb_write_regs_seq::type_id::create("apb_w_seq");
+        apb_r_seq   = apb_read_regs_seq::type_id::create("apb_r_seq");
         apb_err_seq = apb_write_error_addr_seq::type_id::create("apb_err_seq");
 
-        // CASE 1: Write into RO register - CFG 
-        `uvm_info("APB_UART_TEST", "\n>>> APB_UART_TEST CASE 1: Write to RO Register (0x04)\n", UVM_LOW)
         if (!apb_err_seq.randomize() with { addr == 12'h004; }) 
-            `uvm_fatal("APB_UART_TEST", "Randomize failed")
-        
+            `uvm_fatal("TEST", "Randomize failed")
         apb_err_seq.start(apb_uart_env.apb_agent.sequencer);
         repeat(5) @(posedge apb_m_if.pclk);
 
-        // CASE 2: Write into RO register - STT
-        `uvm_info("APB_UART_TEST", "\n>>> APB_UART_TEST CASE 2: Write to STATUS Register (0x10)\n", UVM_LOW)
         if (!apb_err_seq.randomize() with { addr == 12'h010; }) 
-            `uvm_fatal("APB_UART_TEST", "Randomize failed")
-        
+            `uvm_fatal("TEST", "Randomize failed")
         apb_err_seq.start(apb_uart_env.apb_agent.sequencer);
         repeat(5) @(posedge apb_m_if.pclk);
 
-        // CASE 3: Write into Invalid register
-        `uvm_info("APB_UART_TEST", "\n>>> APB_UART_TEST CASE 3: Write to Invalid Address\n", UVM_LOW)
         if (!apb_err_seq.randomize() with { !(addr inside {12'h000, 12'h004, 12'h008, 12'h00C, 12'h010}); }) 
-            `uvm_fatal("APB_UART_TEST", "Randomize failed")
-        
+            `uvm_fatal("TEST", "Randomize failed")
         apb_err_seq.start(apb_uart_env.apb_agent.sequencer);
         repeat(5) @(posedge apb_m_if.pclk);
 
+        if (!apb_w_seq.randomize() with { 
+            addr == `ADDR_CFG_REG; 
+            data == 32'h0000_0000; 
+        }) `uvm_fatal("TEST", "Randomize Valid Write Failed")
+        apb_w_seq.start(apb_uart_env.apb_agent.sequencer);
+
+        if (!apb_err_seq.randomize() with { 
+            (addr & 12'h0FF) == `ADDR_CFG_REG; 
+            addr > 12'h0FF;                    
+            data == 32'hFFFF_FFFF;             
+        }) `uvm_fatal("TEST", "Randomize Alias Addr Failed")
+        apb_err_seq.start(apb_uart_env.apb_agent.sequencer);
+
+        if (!apb_r_seq.randomize() with { addr == `ADDR_CFG_REG; }) 
+            `uvm_fatal("TEST", "Randomize Read Failed")
+        apb_r_seq.start(apb_uart_env.apb_agent.sequencer);
+
+        if (apb_r_seq.read_data !== 32'h0000_0000) begin
+            `uvm_error("TEST", $sformatf("BUG DETECTED: Address Aliasing! Addr 0x%h overwrote 0x08! Val: %h", apb_err_seq.addr, apb_r_seq.read_data))
+        end else begin
+            `uvm_info("TEST", "PASS: No Address Aliasing detected.", UVM_NONE)
+        end
         
         phase.drop_objection(this);
-    endtask : run_phase
+    endtask
 
 endclass : apb_write_addr_error_test
 
@@ -880,15 +896,16 @@ class apb_uart_full_duplex_test extends apb_uart_base_test;
     endtask
 endclass : apb_uart_full_duplex_test
 
-class apb_uart_reset_during_transfer_test extends apb_uart_base_test;
-    `uvm_component_utils(apb_uart_reset_during_transfer_test)
+class apb_uart_reset_registers_test extends apb_uart_base_test;
+    `uvm_component_utils(apb_uart_reset_registers_test)
 
     apb_write_regs_seq  apb_w_seq;
     apb_read_regs_seq   apb_r_seq;
+    uart_tx_seq         u_tx_seq;
 
-    function new(string name = "apb_uart_reset_during_transfer_test", uvm_component parent);
+    function new(string name = "apb_uart_reset_registers_test", uvm_component parent = null);
         super.new(name, parent);
-    endfunction
+    endfunction : new
 
     virtual task run_phase(uvm_phase phase);
         phase.raise_objection(this);
@@ -896,115 +913,134 @@ class apb_uart_reset_during_transfer_test extends apb_uart_base_test;
         wait(apb_m_if.presetn === 1'b0); 
         wait(apb_m_if.presetn === 1'b1);
         repeat(10) @(posedge apb_m_if.pclk);
+        `uvm_info("APB_UART_TEST", "System Reset Done...", UVM_LOW)
 
         apb_w_seq = apb_write_regs_seq::type_id::create("apb_w_seq");
-        apb_r_seq  = apb_read_regs_seq::type_id::create("apb_r_seq");;
+        apb_r_seq = apb_read_regs_seq::type_id::create("apb_r_seq");
+        u_tx_seq  = uart_tx_seq::type_id::create("u_tx_seq");
+
+        `uvm_info("APB_UART_TEST", "\nWriting non-default config to registers...\n", UVM_LOW)
+        if (!apb_w_seq.randomize() with {
+            addr         == `ADDR_CFG_REG;
+            data_bit_num == APB_DATA_8BIT; 
+            stop_bit_num == APB_CFG_ONE_STOP_BIT;
+            parity_en    == APB_CFG_PARITY_EN;   
+            parity_type  == APB_CFG_PARITY_ODD;  
+        }) `uvm_fatal("APB_UART_TEST", "Randomize CFG Failed")
 
         uart_cfg.data_bit_num = UART_8BIT;
         uart_cfg.stop_bit_num = UART_ONE_STOP_BIT;
         uart_cfg.parity_en    = UART_PARITY_EN;
         uart_cfg.parity_type  = UART_PARITY_ODD;
 
-        if (!apb_w_seq.randomize() with {
-            addr         == `ADDR_CFG_REG;
-            data_bit_num == APB_DATA_8BIT;
-            stop_bit_num == APB_CFG_ONE_STOP_BIT;
-            parity_en    == APB_CFG_PARITY_EN;
-            parity_type  == APB_CFG_PARITY_ODD;
-        }) `uvm_fatal("TEST", "Randomize CFG Failed")
         apb_w_seq.start(apb_uart_env.apb_agent.sequencer);
 
         if (!apb_w_seq.randomize() with {
-            addr == `ADDR_TX_DATA; 
-            data == 32'hAA;
-        }) `uvm_fatal("TEST", "Randomize TX Data Failed")
+            addr == `ADDR_TX_DATA;
+            data == 32'hA5;  
+        }) `uvm_fatal("APB_UART_TEST", "Randomize TX_DATA Failed")
+        apb_w_seq.start(apb_uart_env.apb_agent.sequencer);
+
+        if (!apb_w_seq.randomize() with {
+            addr == `ADDR_CTRL_REG;
+            data[0] == 1'b1; 
+        }) `uvm_fatal("APB_UART_TEST", "Randomize CTRL Failed")
         apb_w_seq.start(apb_uart_env.apb_agent.sequencer);
 
         fork
             begin
-                if (!apb_w_seq.randomize() with {
-                    addr == `ADDR_CTRL_REG; 
-                }) `uvm_fatal("TEST", "Randomize CTRL Failed")
-                apb_w_seq.start(apb_uart_env.apb_agent.sequencer);
+                repeat(200) @(posedge apb_m_if.pclk); 
+
+                `uvm_info("APB_UART_TEST", "\nAsserting reset during transfer...\n", UVM_LOW)
+                apb_m_if.presetn = 0;
+                repeat(5) @(posedge apb_m_if.pclk);  
+                apb_m_if.presetn = 1;
+                `uvm_info("APB_UART_TEST", "\nDeasserted reset...\n", UVM_LOW)
             end
 
             begin
-                wait(uart_cfg.tx_if.start_tx === 1'b1);
-                
-                repeat(200) @(posedge apb_m_if.pclk);
-
-                apb_uart_env.apb_agent.monitor.set_report_severity_id_override(UVM_ERROR, "APB_MASTER_MON", UVM_INFO);
-                apb_uart_env.uart_tx.monitor.set_report_severity_id_override(UVM_ERROR, "UART_TX_MON", UVM_INFO);
-                apb_uart_env.scoreboard.set_report_severity_id_override(UVM_ERROR, "SCB_TX_FAIL", UVM_INFO);
-
-                if (!uvm_hdl_force("apb_uart_test_top.reset_n", 1'b0)) begin
-                    `uvm_error("TEST", "Force Reset Failed")
-                end
-
-                repeat(50) @(posedge apb_m_if.pclk);
-
-                if (!uvm_hdl_release("apb_uart_test_top.reset_n")) begin
-                    `uvm_error("TEST", "Release Reset Failed")
-                end
+                wait(uart_cfg.tx_if.tx_done == 1'b1);
             end
         join_any
         disable fork;
 
-        apb_uart_env.apb_agent.monitor.set_report_severity_id_override(UVM_ERROR, "APB_MASTER_MON", UVM_ERROR);
-        apb_uart_env.uart_tx.monitor.set_report_severity_id_override(UVM_ERROR, "UART_TX_MON", UVM_ERROR);
-        apb_uart_env.scoreboard.set_report_severity_id_override(UVM_ERROR, "SCB_TX_FAIL", UVM_ERROR);
+        // Wait for reset stable
+        repeat(10) @(posedge apb_m_if.pclk);
 
-        repeat(20) @(posedge apb_m_if.pclk);
+        `uvm_info("APB_UART_TEST", "\nChecking registers after reset...\n", UVM_LOW)
 
+        // Read CFG_REG, expect 0
         if (!apb_r_seq.randomize() with { addr == `ADDR_CFG_REG; }) 
-            `uvm_fatal("TEST", "Randomize Read CFG Failed")
+            `uvm_fatal("APB_UART_TEST", "Randomize Read CFG Failed")
         apb_r_seq.start(apb_uart_env.apb_agent.sequencer);
 
         if (apb_r_seq.read_data !== 32'h0) begin
-            `uvm_error("TEST", $sformatf("FAILURE: Registers not reset! CFG: 0x%0h", apb_r_seq.read_data))
+            `uvm_error("APB_UART_TEST", $sformatf("FAIL: CFG_REG not reset to default! Got: 0x%0h, Expected: 0x0", apb_r_seq.read_data))
         end else begin
-            `uvm_info("TEST", "SUCCESS: Registers reset successfully", UVM_NONE)
+            `uvm_info("APB_UART_TEST", "PASS: CFG_REG reset to 0x0", UVM_NONE)
         end
 
-        uart_cfg.data_bit_num = UART_8BIT;
-        uart_cfg.stop_bit_num = UART_ONE_STOP_BIT;
-        uart_cfg.parity_en    = UART_PARITY_EN;
-        uart_cfg.parity_type  = UART_PARITY_ODD;
-
-        if (!apb_w_seq.randomize() with {
-            addr         == `ADDR_CFG_REG;
-            data_bit_num == APB_DATA_8BIT;
-            stop_bit_num == APB_CFG_ONE_STOP_BIT;
-            parity_en    == APB_CFG_PARITY_EN;
-            parity_type  == APB_CFG_PARITY_ODD;
-        }) `uvm_fatal("TEST", "Randomize CFG Re-Init Failed")
-        apb_w_seq.start(apb_uart_env.apb_agent.sequencer);
-
-        if (!apb_w_seq.randomize() with {
-            addr == `ADDR_TX_DATA; 
-            data == 32'h55;
-        }) `uvm_fatal("TEST", "Randomize TX Data 2 Failed")
-        apb_w_seq.start(apb_uart_env.apb_agent.sequencer);
-
-        if (!apb_w_seq.randomize() with {
-            addr == `ADDR_CTRL_REG; 
-        }) `uvm_fatal("TEST", "Randomize CTRL 2 Failed")
-        apb_w_seq.start(apb_uart_env.apb_agent.sequencer);
-
-        wait(uart_cfg.tx_if.tx_done === 1'b1);
-
-        if (!apb_r_seq.randomize() with { addr == `ADDR_STT_REG; }) 
-            `uvm_fatal("TEST", "Randomize STT Read Failed")
+        // Read TX_DATA, expect 0
+        if (!apb_r_seq.randomize() with { addr == `ADDR_TX_DATA; }) 
+            `uvm_fatal("APB_UART_TEST", "Randomize Read TX_DATA Failed")
         apb_r_seq.start(apb_uart_env.apb_agent.sequencer);
 
-        if (apb_r_seq.read_data[0] !== 1'b1) begin
-             `uvm_error("TEST", "FAILURE: DUT did not recover after reset (TX Done not set)")
+        if (apb_r_seq.read_data !== 32'h0) begin
+            `uvm_error("APB_UART_TEST", $sformatf("FAIL: TX_DATA not reset to default! Got: 0x%0h, Expected: 0x0", apb_r_seq.read_data))
         end else begin
-             `uvm_info("TEST", "SUCCESS: DUT Recovered and Completed Transaction", UVM_NONE)
+            `uvm_info("APB_UART_TEST", "PASS: TX_DATA reset to 0x0", UVM_NONE)
         end
 
+        // Read CTRL_REG, expect 0
+        if (!apb_r_seq.randomize() with { addr == `ADDR_CTRL_REG; }) 
+            `uvm_fatal("APB_UART_TEST", "Randomize Read CTRL Failed")
+        apb_r_seq.start(apb_uart_env.apb_agent.sequencer);
+
+        if (apb_r_seq.read_data !== 32'h0) begin
+            `uvm_error("APB_UART_TEST", $sformatf("FAIL: CTRL_REG not reset to default! Got: 0x%0h, Expected: 0x0", apb_r_seq.read_data))
+        end else begin
+            `uvm_info("APB_UART_TEST", "PASS: CTRL_REG reset to 0x0", UVM_NONE)
+        end
+
+        if (!apb_r_seq.randomize() with { addr == `ADDR_STT_REG; }) 
+            `uvm_fatal("APB_UART_TEST", "Randomize Read STT Failed")
+        apb_r_seq.start(apb_uart_env.apb_agent.sequencer);
+
+        if (apb_r_seq.read_data[0] !== 1'b1 || apb_r_seq.read_data[31:1] !== 31'h0) begin
+            `uvm_error("APB_UART_TEST", $sformatf("FAIL: STT_REG not reset to default! Got: 0x%0h, Expected: tx_done=1, others=0", apb_r_seq.read_data))
+        end else begin
+            `uvm_info("APB_UART_TEST", "PASS: STT_REG reset correctly (tx_done=1)", UVM_NONE)
+        end
+
+        // Check UART signals idle 
+        if (uart_cfg.tx_if.tx !== 1'b1) begin
+            `uvm_error("APB_UART_TEST", "FAIL: TX signal not idle after reset!")
+        end else begin
+            `uvm_info("APB_UART_TEST", "PASS: TX idle after reset", UVM_NONE)
+        end
+
+        `uvm_info("APB_UART_TEST", "\nRecovering DUT after reset...\n", UVM_LOW)
+        apb_w_seq.start(apb_uart_env.apb_agent.sequencer); 
+
+        // Re-write TX_DATA 0xA5
+        if (!apb_w_seq.randomize() with {
+            addr == `ADDR_TX_DATA;
+            data == 32'hA5;
+        }) `uvm_fatal("APB_UART_TEST", "Randomize Recover TX_DATA Failed")
+        apb_w_seq.start(apb_uart_env.apb_agent.sequencer);
+
+        // Re-start CTRL
+        if (!apb_w_seq.randomize() with {
+            addr == `ADDR_CTRL_REG;
+            data[0] == 1'b1;
+        }) `uvm_fatal("APB_UART_TEST", "Randomize Recover CTRL Failed")
+        apb_w_seq.start(apb_uart_env.apb_agent.sequencer);
+
+        wait(uart_cfg.tx_if.tx_done == 1'b1);
+
+        `uvm_info("APB_UART_TEST", "PASS: DUT recovered and completed transfer after reset", UVM_NONE)
+
         phase.drop_objection(this);
-        
     endtask : run_phase
 
-endclass : apb_uart_reset_during_transfer_test
+endclass : apb_uart_reset_registers_test
