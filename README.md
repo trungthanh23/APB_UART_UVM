@@ -65,6 +65,8 @@ Open `qrun_bash.sh` and edit the following lines:
 export UVM_HOME=/home/thanhtrung/Tools/Questasim/questasim/verilog_src/uvm-1.2
 export LM_LICENSE_FILE=/home/thanhtrung/Tools/Questasim/questasim/LICENSE.dat
 export MTI_HOME=/home/thanhtrung/Tools/Questasim/questasim
+```
+
 ### 2. Execution Steps
 Follow these steps to compile and run the simulation:
 
@@ -72,16 +74,20 @@ Navigate to the simulation working directory:
 
 ```bash
 cd ../sim/work
+```
 
 Source the setup script:
 
 ```bash
 source qrun_bash.sh
+```
+
 Run the simulation commands (Library creation, Compilation, Simulation):
 
 ```bash
 vlb; vlg; vsm
 (Note: vlb, vlg, vsm are aliases defined in the qrun_bash.sh script)
+```
 
 ### 3. Run Specific Test
 To run a specific test case (e.g., uart_tx_rand_cfg_test) with coverage enabled:
@@ -95,13 +101,17 @@ Change the test at TEST_NAME in qrun_bash by command the test you do not want ru
 export TEST_NAME="apb_uart_reset_registers_test"
 #export TEST_NAME="apb_simple_write_test"
 ...
+```
 
 * Method 2:
 Run the command:
+
 ```bash
 vsim -c apb_uart_test_top \
      -do "coverage save -onexit -assert -code bcefs -directive -cvg coverage.ucdb; add wave -r /*; run -all; quit" \
      +UVM_TESTNAME=uart_tx_rand_cfg_test
+```
+
 ## 🐛 Bugs Found & Analysis
 During verification, the following issues were identified in the Black-box design:
 
