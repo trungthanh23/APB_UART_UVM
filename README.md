@@ -1,6 +1,6 @@
 # APB-UART UVM Verification Environment
 
-![UVM Architecture](apb_uart/doc/APB_UART_UVM_Env.png)
+![UVM Architecture](doc/APB_UART_UVM_Env.png)
 
 ## 📌 Overview
 This project implements a **UVM (Universal Verification Methodology)** testbench to verify an **APB-UART Bridge** Design Under Test (DUT).
