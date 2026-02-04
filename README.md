@@ -1,6 +1,6 @@
 # APB-UART UVM Verification Environment
 
-![UVM Architecture](APB_UART_UVM_Env.jpg)
+![UVM Architecture](apb_uart/doc/APB_UART_UVM_Env.png)
 
 ## 📌 Overview
 This project implements a **UVM (Universal Verification Methodology)** testbench to verify an **APB-UART Bridge** Design Under Test (DUT).
@@ -92,8 +92,8 @@ vlb; vlg; vsm
 ### 3. Run Specific Test
 To run a specific test case (e.g., uart_tx_rand_cfg_test) with coverage enabled:
 
-* Method 1
-Change the test at TEST_NAME in qrun_bash by command the test you do not want run and uncommand the test you want run:
+* Method 1:
+* Change the test at TEST_NAME in qrun_bash by command the test you do not want run and uncommand the test you want run:
 ```bash
 # Test name for running simulation with UVM
 #export TEST_NAME="apb_uart_simple_test"
@@ -104,21 +104,10 @@ export TEST_NAME="apb_uart_reset_registers_test"
 ```
 
 * Method 2:
-Run the command:
+* Run the command:
 
 ```bash
 vsim -c apb_uart_test_top \
      -do "coverage save -onexit -assert -code bcefs -directive -cvg coverage.ucdb; add wave -r /*; run -all; quit" \
      +UVM_TESTNAME=uart_tx_rand_cfg_test
 ```
-
-## 🐛 Bugs Found & Analysis
-During verification, the following issues were identified in the Black-box design:
-
-    * Parity Config Stuck: The parity_en bit in the Config register was stuck at 1.
-
-    * Address Aliasing: Writing to address 0x108 incorrectly overwrote 0x08 (Decoding error).
-
-    * Data Masking Issue: In 8-bit mode, the DUT incorrectly masked the MSB (Bit 7), treating data as 7-bit.
-
-* Project maintained by Thanh Trung.
