@@ -8,6 +8,10 @@ class uart_tx_transaction extends uvm_sequence_item;
     rand bit inject_parity_error; 
     rand bit inject_stop_error;
 
+    // Error bit    
+    bit parity_error;
+    bit stop_error;
+
     // UVM macros
     `uvm_object_utils_begin(uart_tx_transaction)
         `uvm_field_int(uart_tx_data_frame, UVM_ALL_ON)

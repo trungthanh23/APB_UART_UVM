@@ -17,10 +17,10 @@ module apb_uart_test_top;
     apb_sva_base        apb_sva(.apb_itf(apb_if));
     uart_tx_sva_base    uart_tx_sva(.tx_if(tx_if));
     uart_baud_sva_base u_baud_sva (
-        .clk_sys(pclk),    // Clock hệ thống
-        .reset_n(presetn)  // Reset hệ thống
+        .clk_sys(pclk),    
+        .reset_n(presetn)  
     );
-//    uart_rx_sva_base    uart_rx_sva(.rx_if(rx_if));
+    uart_rx_sva_base    uart_rx_sva(.rx_if(rx_if));
 
     // DUT instantiation 
     uart dut (

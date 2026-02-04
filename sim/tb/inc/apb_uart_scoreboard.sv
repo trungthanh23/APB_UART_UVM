@@ -6,12 +6,10 @@ class apb_uart_scoreboard extends uvm_scoreboard;
   `uvm_component_utils(apb_uart_scoreboard)
 
   uart_configuration uart_cfg;
-
   virtual apb_master_itf apb_vif;
 
   bit [7:0] q_expect_dut_tx[$];
   bit [7:0] q_actual_dut_tx[$];
-
   bit [7:0] q_expect_dut_rx[$];
   bit [7:0] q_actual_dut_rx[$];
 
@@ -24,6 +22,9 @@ class apb_uart_scoreboard extends uvm_scoreboard;
   bit        dut_parity_en;
   bit        dut_parity_type;
   bit [7:0]  dut_tx_data;
+
+  bit        expect_parity_error;
+  bit        parity_error_detected = 0;
 
   uvm_analysis_imp_apb     #(apb_master_transaction, apb_uart_scoreboard) apb_imp;
   uvm_analysis_imp_uart_rx #(uart_rx_transaction,    apb_uart_scoreboard) uart_rx_imp;
@@ -46,27 +47,33 @@ class apb_uart_scoreboard extends uvm_scoreboard;
     end
   endfunction
 
-  virtual function void write_apb(apb_master_transaction item);
+  virtual function void write_apb (apb_master_transaction item);
     int error_cfg = 0;
+    bit [7:0] data_to_mask;  
+
+    if (item.apb_write[0]) begin
+        data_to_mask = item.apb_pwdata[0];
+    end else begin
+        data_to_mask = item.apb_prdata[0];
+    end
 
     case (uart_cfg.data_bit_num)
-        UART_5BIT: masked_data = item.apb_data[0] & 8'h1F;
-        UART_6BIT: masked_data = item.apb_data[0] & 8'h3F;
-        UART_7BIT: masked_data = item.apb_data[0] & 8'h7F;
-        default:   masked_data = item.apb_data[0] & 8'hFF;
+        UART_5BIT: masked_data = data_to_mask & 8'h1F;
+        UART_6BIT: masked_data = data_to_mask & 8'h3F;
+        UART_7BIT: masked_data = data_to_mask & 8'h7F;
+        default:   masked_data = data_to_mask & 8'hFF;
     endcase
 
     if (item.apb_write[0] && item.apb_addr[0] == 12'h000) begin
         q_expect_dut_tx.push_back(masked_data);
         fork
             begin
-                @(posedge apb_vif.pclk); 
-                
+                @(posedge apb_vif.pclk);
                 if (uvm_hdl_read("apb_uart_test_top.dut.tx_data", dut_tx_data)) begin
-                    if (dut_tx_data !== item.apb_data[0][7:0]) begin
-                         `uvm_error("SCB_APB_FAIL", $sformatf("\n\n==========================\n!!! Register Update Fail !!! Addr: 0x00 \nWrote: %h, DUT holds: %h\n==========================\n", item.apb_data[0][7:0], dut_tx_data))
+                    if (dut_tx_data !== item.apb_pwdata[0][7:0]) begin  
+                        `uvm_error("SCB_APB_FAIL", $sformatf("\n\n==========================\n!!! Register Update Fail !!! Addr: 0x00 \nWrote: %h, DUT holds: %h\n==========================\n", item.apb_pwdata[0][7:0], dut_tx_data))
                     end else begin
-                         `uvm_info("SCB_APB_PASS", "\n\n==========================\nRegister TX_DATA Update OK\n==========================\n", UVM_MEDIUM)
+                        `uvm_info("SCB_APB_PASS", "\n\n==========================\nRegister TX_DATA Update OK\n==========================\n", UVM_MEDIUM)
                     end
                 end
             end
@@ -74,30 +81,28 @@ class apb_uart_scoreboard extends uvm_scoreboard;
     end
     else if (item.apb_write[0] && item.apb_addr[0] == 12'h008) begin
         fork
-             begin
+           begin
                 @(posedge apb_vif.pclk);
-                
                 void'(uvm_hdl_read("apb_uart_test_top.dut.data_bit_num", dut_data_bit_num));
                 void'(uvm_hdl_read("apb_uart_test_top.dut.stop_bit_num", dut_stop_bit_num));
                 void'(uvm_hdl_read("apb_uart_test_top.dut.parity_en",    dut_parity_en));
                 void'(uvm_hdl_read("apb_uart_test_top.dut.parity_type",  dut_parity_type));
-
-                if (dut_data_bit_num !== item.apb_data[0][1:0]) begin
+                if (dut_data_bit_num !== item.apb_pwdata[0][1:0]) begin  
                   error_cfg++;
                   `uvm_error("SCB_APB_FAIL", $sformatf("\n\n==========================\nConfig: data_bit_num update wrong!\nWrite: %0b\n==========================\n", dut_data_bit_num))
                 end
 
-                if (dut_stop_bit_num !== item.apb_data[0][2]) begin 
+                if (dut_stop_bit_num !== item.apb_pwdata[0][2]) begin 
                   error_cfg++;
                   `uvm_error("SCB_APB_FAIL", $sformatf("\n\n==========================\nConfig: stop_bit_num update wrong!\nWrite: %0b\n==========================\n", dut_stop_bit_num))
                 end
 
-                if (dut_parity_en !== item.apb_data[0][3]) begin
+                if (dut_parity_en !== item.apb_pwdata[0][3]) begin
                   error_cfg++;
                   `uvm_error("SCB_APB_FAIL", $sformatf("\n\n==========================\nConfig: parity_en update wrong!\nWrite: %0b\n==========================\n", dut_parity_en))
                 end
 
-                if ((dut_parity_type !== item.apb_data[0][4]) && item.apb_data[0][3]) begin
+                if ((dut_parity_type !== item.apb_pwdata[0][4]) && item.apb_pwdata[0][3]) begin
                   error_cfg++;
                   `uvm_error("SCB_APB_FAIL", $sformatf("\n\n==========================\nConfig: parity_type update wrong!\nWrite: %0b\n==========================\n", dut_parity_type))
                 end
@@ -105,21 +110,28 @@ class apb_uart_scoreboard extends uvm_scoreboard;
                 if (error_cfg == 0) begin
                   `uvm_info("SCB_APB_PASS", "\n\n==========================\nRegister CONFIG Update OK\n==========================\n", UVM_MEDIUM)
                 end
-             end
+           end
         join_none
     end
     else if (item.apb_write[0] == 1'b0 && item.apb_addr[0] == 12'h004) begin
-      q_actual_dut_rx.push_back(masked_data);
+      q_actual_dut_rx.push_back(masked_data);  
+    end
+    else if (item.apb_write[0] == 1'b0 && item.apb_addr[0] == 12'h010) begin
+      check_status_register(item.apb_prdata[0]);  
     end
   endfunction : write_apb
 
-  // VIP RX 
+  // RX VIP Recive from DUT TX
   virtual function void write_uart_rx(uart_rx_transaction item);
     q_actual_dut_tx.push_back(item.uart_rx_data_frame);
   endfunction : write_uart_rx
 
-  // VIP TX
+  // TX VIP Send to DUT RX
   virtual function void write_uart_tx(uart_tx_transaction item);
+    if (item.parity_error) begin
+        `uvm_info("SCB_UART_TX", "\n\n==========================\nDetected Parity Error Frame from UART VIP.\nExpecting Status Update...\n==========================\n", UVM_MEDIUM)
+        expect_parity_error = 1;
+    end
 
     case (uart_cfg.data_bit_num)
         UART_5BIT: rx_masked_data = item.uart_tx_data_frame & 8'h1F;
@@ -128,7 +140,9 @@ class apb_uart_scoreboard extends uvm_scoreboard;
         default:   rx_masked_data = item.uart_tx_data_frame & 8'hFF;
     endcase
 
-    q_expect_dut_rx.push_back(rx_masked_data);
+    if (!item.parity_error) begin
+        q_expect_dut_rx.push_back(rx_masked_data);
+    end
   endfunction : write_uart_tx
 
   task run_phase(uvm_phase phase);
@@ -138,6 +152,7 @@ class apb_uart_scoreboard extends uvm_scoreboard;
     join
   endtask : run_phase
 
+  // Compare DUT with VIP
   task check_dut_tx();
     bit [7:0] exp, act;
     forever begin
@@ -165,5 +180,31 @@ class apb_uart_scoreboard extends uvm_scoreboard;
         `uvm_info("SCB_RX_PASS", $sformatf("\n\n====================\n=== DUT RX Match ===\nReceive: 0x%0h\n====================\n", exp), UVM_LOW)
     end
   endtask
+
+  virtual function void check_status_register(bit [31:0] status_val);
+      bit parity_err_bit = status_val[2]; 
+
+      if (uart_cfg.expect_parity_error == 1) expect_parity_error = 1;
+
+      if (expect_parity_error == 1) begin
+          if (parity_err_bit == 1'b1) begin
+              `uvm_info("SCB", "\n>>> SUCCESS: Parity Error detected by DUT! <<<\n", UVM_NONE)
+              expect_parity_error = 0;
+              uart_cfg.expect_parity_error = 0; 
+          end
+      end 
+      else begin
+          if (parity_err_bit == 1'b1 && uart_cfg.disable_parity_check_error == 0) begin
+              `uvm_error("SCB", "Unexpected Parity Error bit set!")
+          end
+      end
+  endfunction
+
+  virtual function void check_phase(uvm_phase phase);
+      super.check_phase(phase);
+      if (expect_parity_error == 1 || uart_cfg.expect_parity_error == 1) begin
+          `uvm_error("SCB", "Test finished but Parity Error was NEVER detected in Status Register!")
+      end
+  endfunction
 
 endclass

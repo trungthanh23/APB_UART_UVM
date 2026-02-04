@@ -58,9 +58,9 @@ class apb_master_monitor extends uvm_monitor;
                 item.apb_pslverr[0] = master_itf.pslverr;
 
                 if (master_itf.pwrite) begin
-                    item.apb_data[0] = master_itf.pwdata;
+                    item.apb_pwdata[0] = master_itf.pwdata;
                 end else begin
-                    item.apb_data[0] = master_itf.prdata;
+                    item.apb_prdata[0] = master_itf.prdata;
                 end
 
                 master_monitor_port.write(item);

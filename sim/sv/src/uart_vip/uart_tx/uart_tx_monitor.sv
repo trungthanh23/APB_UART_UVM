@@ -18,9 +18,8 @@ class uart_tx_monitor extends uvm_monitor;
     int     num_data_bits;
 
     // Global variable
-    // bit parity;
-
-    // bit received_parity;
+    bit parity;
+    bit received_parity;
 
     `uvm_component_utils(uart_tx_monitor)
 
@@ -78,41 +77,45 @@ class uart_tx_monitor extends uvm_monitor;
             endcase
 
             item.uart_tx_data_frame = '0;
-            //parity = 0; 
+            parity = 0; 
 
             // Collect Data
             for(int i = 0; i < num_data_bits; i++) begin
                 item.uart_tx_data_frame[i] = tx_if.tx;
                 `uvm_info("UART_TX_MON", $sformatf("Collect bit %0b", tx_if.tx), UVM_HIGH)
-                //parity ^= item.uart_tx_data_frame[i]; 
+                parity ^= item.uart_tx_data_frame[i]; 
                 #(num_of_clk * sys_clk_period_ns * 1ns);
             end
 
-            // // Checking parity if parity is enable
-            // if (uart_tx_cfg.parity_en) begin
-            //     received_parity = tx_if.tx;
-            //     if(uart_tx_cfg.parity_type == UART_PARITY_ODD) 
-            //         parity = ~parity;
-            //     if (received_parity !== parity) begin
-            //         `uvm_error("UART_TX_MON", $sformatf("Parity Error! Expected: %b, Received: %b", parity, received_parity))
-            //         item.parity_error = 1'b1; 
-            //     end
-            //     #(num_of_clk * sys_clk_period_ns * 1ns);
-            // end
+            // Checking parity if parity is enable
+            if (uart_tx_cfg.parity_en) begin
+                received_parity = tx_if.tx;
+                if(uart_tx_cfg.parity_type == UART_PARITY_ODD) 
+                    parity = ~parity;
+                if (received_parity !== parity) begin
+                    if (!uart_tx_cfg.disable_parity_check_error) begin
+                        `uvm_error("UART_TX_MON", $sformatf("Parity Error! Expected: %b, Received: %b", parity, received_parity))
+                    end else begin
+                        `uvm_info("UART_TX_MON", "Parity Error detected (Injected), suppressing UVM_ERROR...", UVM_HIGH)
+                    end
+                    item.parity_error = 1'b1; 
+                end
+                #(num_of_clk * sys_clk_period_ns * 1ns);
+            end
 
-            // // Colect and checking stop bit
-            // if (tx_if.tx !== 1'b1) begin
-            //     `uvm_error("UART_TX_MON", "Framing Error! Stop bit is not HIGH.")
-            //     item.stop_error = 1'b1;
-            // end
-            // if (uart_tx_cfg.stop_bit_num == UART_TWO_STOP_BIT) begin
-            //      #(num_of_clk * sys_clk_period_ns * 1ns);;
-            //      if (tx_if.tx !== 1'b1) 
-            //         `uvm_error("UART_TX_MON", "Framing Error! 2nd Stop bit is not HIGH.")
-            // end
+            // Colect and checking stop bit
+            if (tx_if.tx !== 1'b1) begin
+                `uvm_error("UART_TX_MON", "Framing Error! Stop bit is not HIGH.")
+                item.stop_error = 1'b1;
+            end
+            if (uart_tx_cfg.stop_bit_num == UART_TWO_STOP_BIT) begin
+                 #(num_of_clk * sys_clk_period_ns * 1ns);;
+                 if (tx_if.tx !== 1'b1) 
+                    `uvm_error("UART_TX_MON", "Framing Error! 2nd Stop bit is not HIGH.")
+            end
 
             // Send the transaction
-            //`uvm_info("UART_TX_MON", $sformatf("Collected: %h", item.uart_tx_data_frame), UVM_HIGH)
+            `uvm_info("UART_TX_MON", $sformatf("Collected: %h", item.uart_tx_data_frame), UVM_HIGH)
             tx_monitor_port.write(item);
         end
     endtask : run_phase

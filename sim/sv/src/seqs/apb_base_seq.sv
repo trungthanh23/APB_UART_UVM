@@ -121,13 +121,13 @@ class apb_write_regs_seq extends apb_base_seq;
         
         `uvm_do_with(req, {
             req.apb_addr.size()  == 1;
-            req.apb_data.size()  == 1;
+            req.apb_pwdata.size()  == 1;
             req.apb_write.size() == 1;
             req.apb_strb.size()  == 1;
             req.apb_delay.size() == 1;
             req.apb_prdata.size()== 1;
             req.apb_addr[0]  == addr;
-            req.apb_data[0]  == data;
+            req.apb_pwdata[0]  == data;
             req.apb_write[0] == 1'b1;
             req.apb_strb[0]  == 4'hF;
             req.bus_len      == 1'b1;
@@ -136,68 +136,125 @@ class apb_write_regs_seq extends apb_base_seq;
 
 endclass : apb_write_regs_seq
 
-class apb_read_regs_seq extends apb_base_seq;
+// class apb_read_regs_seq extends apb_base_seq;
 
-    // Factory
+//     // Factory
+//     `uvm_object_utils(apb_read_regs_seq)
+
+//     // Variable
+//     rand bit [11:0] addr;
+//     bit [31:0]      read_data;
+//     string          stt_desc; 
+
+//     //Contructor
+//     function new(string name = "apb_read_regs_seq");
+//         super.new(name);
+//     endfunction : new
+
+//     // Body
+//     virtual task body();
+
+//         case(addr)
+//             `ADDR_CFG_REG:  reg_name = "CONFIG_REGISTER";
+//             `ADDR_TX_DATA:  reg_name = "UART_TX_DATA";
+//             `ADDR_RX_DATA:  reg_name = "UART_RX_DATA";   
+//             `ADDR_CTRL_REG: reg_name = "CONTROL_REGISTER";
+//             `ADDR_STT_REG:  reg_name = "STATUS_REGISTER";   
+//             default:        reg_name = "UNKNOWN_REGISTER";
+//         endcase
+
+//         `uvm_do_with(req, {
+//             req.apb_addr.size()  == 1;
+//             req.apb_pwdata.size()  == 1;
+//             req.apb_write.size() == 1;
+//             req.apb_strb.size()  == 1;
+//             req.apb_delay.size() == 1;
+//             req.apb_prdata.size()== 1;
+//             req.apb_addr[0]  == addr;   
+//             req.apb_write[0] == 1'b0;
+//             req.apb_strb[0]  == 4'h0;
+//             req.bus_len      == 1;
+//         })
+//         read_data = req.apb_prdata[0]; 
+//         `uvm_info("DEBUG_READ", $sformatf("STATUS read prdata = 0x%08h, bit[2] = %b, sst: %b, ", read_data, read_data[2], req.apb_prdata[0][2]), UVM_LOW)
+//         //`uvm_info("APB_READ_SEQ", $sformatf("\n\n====================\n=== [Read APB] ===\n%s - 0x%0h\n%0h\n====================\n",reg_name, addr, read_data), UVM_MEDIUM)
+//         stt_desc = "";
+//         if (addr == `ADDR_STT_REG) begin
+//             if (read_data[1]) stt_desc = {stt_desc," - ", " RX Done"};
+//             else              stt_desc = {stt_desc," - ", " RX Not Done"};
+
+//             if (read_data[2]) stt_desc = {stt_desc," - ", " Parity Error"};
+//             else              stt_desc = {stt_desc," - ", " No Parity Error"}; 
+            
+//             if (read_data[0]) stt_desc = {stt_desc," - ", " TX Done"};
+            
+//             if (read_data == 0) stt_desc = " [IDLE/OK]";
+
+//             stt_desc = {"Status:", stt_desc};
+//         end 
+//         else if (addr == `ADDR_RX_DATA) begin
+//             stt_desc = $sformatf("Value: 0x%02h", read_data);
+//         end
+
+//         `uvm_info("APB_READ_SEQ", $sformatf("\n\n====================\n=== [Read APB] ===\nReg: %s (0x%0h)\n%s %0b\n====================\n", reg_name, addr, stt_desc, req.apb_prdata[0][2]), UVM_MEDIUM)
+//     endtask : body
+
+// endclass : apb_read_regs_seq
+
+class apb_read_regs_seq extends apb_base_seq;
     `uvm_object_utils(apb_read_regs_seq)
 
-    // Variable
     rand bit [11:0] addr;
     bit [31:0]      read_data;
-    string          stt_desc; 
+    string          stt_desc;
 
-    //Contructor
     function new(string name = "apb_read_regs_seq");
         super.new(name);
     endfunction : new
 
-    // Body
     virtual task body();
-
         case(addr)
             `ADDR_CFG_REG:  reg_name = "CONFIG_REGISTER";
             `ADDR_TX_DATA:  reg_name = "UART_TX_DATA";
             `ADDR_RX_DATA:  reg_name = "UART_RX_DATA";   
             `ADDR_CTRL_REG: reg_name = "CONTROL_REGISTER";
-            `ADDR_STT_REG:  reg_name = "STATUS_REGISTER";   
+            `ADDR_STT_REG:  reg_name = "STATUS_REGISTER";
             default:        reg_name = "UNKNOWN_REGISTER";
         endcase
 
         `uvm_do_with(req, {
             req.apb_addr.size()  == 1;
-            req.apb_data.size()  == 1;
             req.apb_write.size() == 1;
             req.apb_strb.size()  == 1;
+            req.apb_pwdata.size()== 1;
             req.apb_delay.size() == 1;
-            req.apb_prdata.size()== 1;
-            req.apb_addr[0]  == addr;   
-            req.apb_write[0] == 1'b0;
-            req.apb_strb[0]  == 4'h0;
-            req.bus_len      == 1;
+            req.apb_addr[0]      == addr;   
+            req.apb_write[0]     == 1'b0;
+            req.apb_strb[0]      == 4'h0;
+            req.bus_len          == 1;
         })
-        read_data = req.apb_prdata[0]; 
-        //`uvm_info("APB_READ_SEQ", $sformatf("\n\n====================\n=== [Read APB] ===\n%s - 0x%0h\n%0h\n====================\n",reg_name, addr, read_data), UVM_MEDIUM)
-        stt_desc = "";
-        if (addr == `ADDR_STT_REG) begin
-            if (read_data[1]) stt_desc = {stt_desc, " RX Done"};
-            else              stt_desc = {stt_desc, " RX Not Done"};
-
-            if (read_data[2]) stt_desc = {stt_desc, " Parity Error"};
+        
+        if (req.apb_prdata.size() > 0)
+            read_data = req.apb_prdata[0];
+        
+        if ( (addr == `ADDR_STT_REG && read_data[2] == 1'b1) || 
+             (addr != `ADDR_STT_REG) ) 
+        begin
+            stt_desc = "";
+            if (addr == `ADDR_STT_REG) begin
+                if (read_data[0]) stt_desc = {stt_desc, "-[TX Done]-"};
+                if (read_data[1]) stt_desc = {stt_desc, "-[RX Done]-"};
+                if (read_data[2]) stt_desc = {stt_desc, "-[PARITY ERROR]-"};
+                if (read_data == 0) stt_desc = "[IDLE]";
+            end 
+            else begin
+                stt_desc = $sformatf("Value: 0x%0h", read_data);
+            end
             
-            if (read_data[0]) stt_desc = {stt_desc, " TX Done"};
-            
-            if (read_data == 0) stt_desc = " [IDLE/OK]";
-
-            stt_desc = {"Status:", stt_desc};
-        end 
-        else if (addr == `ADDR_RX_DATA) begin
-            stt_desc = $sformatf("Value: 0x%02h", read_data);
+            `uvm_info("APB_SEQ", $sformatf("\n\n====================\n=== Read %s (0x%0h) ===\n%s\n====================\n", reg_name, addr, stt_desc), UVM_NONE)
         end
-
-        `uvm_info("APB_READ_SEQ", $sformatf("\n\n====================\n=== [Read APB] ===\nReg: %s (0x%0h)\n%s\n====================\n", reg_name, addr, stt_desc), UVM_MEDIUM)
     endtask : body
-
-endclass : apb_read_regs_seq
+endclass
 
 class apb_write_error_addr_seq extends apb_base_seq;
     `uvm_object_utils(apb_write_error_addr_seq)
@@ -224,12 +281,12 @@ class apb_write_error_addr_seq extends apb_base_seq;
 
         if (!req.randomize() with {
             apb_addr[0]  == addr;      
-            apb_data[0]  == data;
+            apb_pwdata[0]  == data;
             apb_write[0] == 1'b1; 
             apb_strb[0]  == 4'hF;
             bus_len      == 1;
             apb_addr.size()  == 1;
-            apb_data.size()  == 1;
+            apb_pwdata.size()  == 1;
             apb_write.size() == 1;
             apb_strb.size()  == 1;
             apb_delay.size() == 1;

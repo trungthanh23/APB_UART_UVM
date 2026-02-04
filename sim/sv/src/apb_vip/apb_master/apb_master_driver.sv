@@ -75,7 +75,7 @@ class apb_master_driver extends uvm_driver #(apb_master_transaction);
             master_itf.paddr   <= req.apb_addr[i];
             master_itf.pwrite  <= req.apb_write[i];
             master_itf.pstrb   <= req.apb_strb[i];
-            master_itf.pwdata  <= req.apb_write[i] ? req.apb_data[i] : 'b0;
+            master_itf.pwdata  <= req.apb_write[i] ? req.apb_pwdata[i] : 'b0;
 
             @(posedge master_itf.pclk);
 

@@ -25,13 +25,18 @@ class uart_configuration extends uvm_object;
     //Set ACTIVE for tx to have driver, monitor, sequencer
     uvm_active_passive_enum is_active = UVM_ACTIVE;
 
+    bit disable_parity_check_error = 0;
+    bit expect_parity_error = 0;
+
     // UVM macros
     `uvm_object_utils_begin(uart_configuration)
-      `uvm_field_enum        (data_bit_num_e,           data_bit_num,   UVM_ALL_ON)
-      `uvm_field_enum        (stop_bit_num_e,           stop_bit_num,   UVM_ALL_ON)
-      `uvm_field_enum        (parity_en_e,              parity_en,      UVM_ALL_ON)
-      `uvm_field_enum        (parity_type_e,            parity_type,    UVM_ALL_ON)
-      `uvm_field_enum        (uvm_active_passive_enum,  is_active,      UVM_ALL_ON)
+      `uvm_field_enum        (data_bit_num_e,           data_bit_num,                   UVM_ALL_ON)
+      `uvm_field_enum        (stop_bit_num_e,           stop_bit_num,                   UVM_ALL_ON)
+      `uvm_field_enum        (parity_en_e,              parity_en,                      UVM_ALL_ON)
+      `uvm_field_enum        (parity_type_e,            parity_type,                    UVM_ALL_ON)
+      `uvm_field_enum        (uvm_active_passive_enum,  is_active,                      UVM_ALL_ON)
+      `uvm_field_int         (                          disable_parity_check_error,     UVM_ALL_ON)
+      `uvm_field_int         (                          expect_parity_error,            UVM_ALL_ON)
     `uvm_object_utils_end
 
     // Contructor

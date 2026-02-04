@@ -19,9 +19,9 @@ class uart_tx_seq extends uvm_sequence #(uart_tx_transaction);
     virtual task body();
         req = uart_tx_transaction::type_id::create("req");
         `uvm_do_with(req, {
-            uart_tx_data_frame  == tx_data;
-            inject_parity_error == this.inject_parity_error;
-            inject_stop_error   == this.inject_stop_error;
+            uart_tx_data_frame  == local::tx_data;
+            inject_parity_error == local::inject_parity_error;
+            inject_stop_error   == local::inject_stop_error;
         })
     endtask : body
 

@@ -6,7 +6,7 @@ class apb_master_transaction extends uvm_sequence_item;
     rand apb_addr_t apb_addr[];
 
     // APB data
-    rand apb_data_t apb_data[];
+    rand apb_data_t apb_pwdata[];
     
     // APB strobe
     rand apb_strb_t apb_strb[];
@@ -27,7 +27,7 @@ class apb_master_transaction extends uvm_sequence_item;
     `uvm_object_utils_begin(apb_master_transaction)
         `uvm_field_int          (bus_len,       UVM_ALL_ON)
         `uvm_field_array_int    (apb_addr,      UVM_ALL_ON)
-        `uvm_field_array_int    (apb_data,      UVM_ALL_ON)
+        `uvm_field_array_int    (apb_pwdata,      UVM_ALL_ON)
         `uvm_field_array_int    (apb_write,     UVM_ALL_ON)
         `uvm_field_array_int    (apb_strb,      UVM_ALL_ON)
         `uvm_field_array_int    (apb_delay,     UVM_ALL_ON)
@@ -39,7 +39,7 @@ class apb_master_transaction extends uvm_sequence_item;
     // max array size
     constraint c_array_size {
         apb_addr.size()  == bus_len;
-        apb_data.size()  == bus_len;
+        apb_pwdata.size()  == bus_len;
         apb_write.size() == bus_len;
         apb_strb.size()  == bus_len;
         apb_delay.size()     == bus_len;

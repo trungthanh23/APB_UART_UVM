@@ -75,33 +75,3 @@
 add wave -position insertpoint vsim:/apb_uart_test_top/dut/*
 dataset reload -f
 # vsim:/apb_uart_test_top/dut
-dataset reload -f
-# vsim:/apb_uart_test_top/dut
-dataset reload -f
-# vsim:/apb_uart_test_top/dut
-dataset reload -f
-# vsim:/apb_uart_test_top/dut
-dataset reload -f
-# vsim:/apb_uart_test_top/dut
-dataset reload -f
-# vsim:/apb_uart_test_top/dut
-dataset reload -f
-# vsim:/apb_uart_test_top/dut
-dataset reload -f
-# vsim:/apb_uart_test_top/dut
-dataset reload -f
-# vsim:/apb_uart_test_top/dut
-dataset reload -f
-# vsim:/apb_uart_test_top/dut
-dataset reload -f
-# vsim:/apb_uart_test_top/dut
-dataset reload -f
-# vsim:/apb_uart_test_top/apb_if
-dataset reload -f
-# vsim:/apb_uart_test_top/apb_if
-dataset reload -f
-# vsim:/apb_uart_test_top/apb_if
-dataset reload -f
-# vsim:/apb_uart_test_top/apb_if
-dataset reload -f
-# vsim:/apb_uart_test_top/apb_if

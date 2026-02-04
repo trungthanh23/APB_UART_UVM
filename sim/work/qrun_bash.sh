@@ -25,7 +25,19 @@ ldflags_dyn="-shared"
 echo "c++ -Wno-deprecated ${ccflags_dyn} ${ldflags_dyn} -DQUESTA -I ${MTI_HOME}/include -o uvm_dpi.so ${UVM_HOME}/src/dpi/uvm_dpi.cc"
 c++ -Wno-deprecated ${ccflags_dyn} ${ldflags_dyn} -DQUESTA -I ${MTI_HOME}/include -o uvm_dpi.so ${UVM_HOME}/src/dpi/uvm_dpi.cc
 
-export TEST_NAME="apb_uart_simple_test" # Test name for running simulation with UVM
+# Test name for running simulation with UVM
+#export TEST_NAME="apb_uart_simple_test"
+#export TEST_NAME="apb_uart_full_duplex_test"
+#export TEST_NAME="apb_uart_reset_during_transfer_test"
+#export TEST_NAME="apb_simple_write_test"
+#export TEST_NAME="apb_write_rand_cfg_test"
+#export TEST_NAME="apb_write_addr_error_test"
+#export TEST_NAME="apb_config_readback_test"
+#export TEST_NAME="apb_full_coverage_test"
+#export TEST_NAME="uart_tx_simple_test"
+#export TEST_NAME="uart_tx_rand_cfg_test"
+#export TEST_NAME="uart_tx_parity_error_test" 
+#export TEST_NAME="uart_tx_glitch_test"
 
 TOP_TB=apb_uart_test_top # name top testbench
 
