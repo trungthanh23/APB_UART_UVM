@@ -28,7 +28,7 @@ c++ -Wno-deprecated ${ccflags_dyn} ${ldflags_dyn} -DQUESTA -I ${MTI_HOME}/includ
 # Test name for running simulation with UVM
 #export TEST_NAME="apb_uart_simple_test"
 #export TEST_NAME="apb_uart_full_duplex_test"
-#export TEST_NAME="apb_uart_reset_during_transfer_test"
+export TEST_NAME="apb_uart_reset_registers_test"
 #export TEST_NAME="apb_simple_write_test"
 #export TEST_NAME="apb_write_rand_cfg_test"
 #export TEST_NAME="apb_write_addr_error_test"

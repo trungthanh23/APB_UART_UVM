@@ -1,6 +1,6 @@
-# vsim -c apb_uart_test_top -wlf vsim.wlf -solvefaildebug -assertdebug -sva -coverage -voptargs="+acc" -l ./log/vsim.log "+UVM_VERBOSITY=UVM_MEDIUM" "+UVM_TESTNAME=apb_uart_reset_during_transfer_test" -sv_lib uvm_dpi -do "coverage save -onexit -assert -code bcefs -directive -cvg coverage.ucdb; add wave -r /apb_uart_test_top/*; run -all; quit" 
-# Start time: 07:36:19 on Jan 28,2026
-# Loading /tmp/thanhtrung@thanhtrung-Vostro-15-3510_dpi_6670/linux_x86_64_gcc-13/export_tramp.so
+# vsim -c apb_uart_test_top -wlf vsim.wlf -solvefaildebug -assertdebug -sva -coverage -voptargs="+acc" -l ./log/vsim.log "+UVM_VERBOSITY=UVM_MEDIUM" "+UVM_TESTNAME=apb_uart_reset_registers_test" -sv_lib uvm_dpi -do "coverage save -onexit -assert -code bcefs -directive -cvg coverage.ucdb; add wave -r /apb_uart_test_top/*; run -all; quit" 
+# Start time: 18:56:47 on Feb 04,2026
+# Loading /tmp/thanhtrung@thanhtrung-Vostro-15-3510_dpi_11139/linux_x86_64_gcc-13/export_tramp.so
 # ** Note: (vsim-3812) Design is being optimized...
 # //  Questa Sim-64
 # //  Version 10.7c linux_x86_64 Aug 17 2018
@@ -40,9 +40,9 @@
 # Loading work.uart_rx_sva_base(fast)
 # Loading work.uart(fast)
 # Loading work.uart_tx_if(fast)
-# Compiling /tmp/thanhtrung@thanhtrung-Vostro-15-3510_dpi_6670/linux_x86_64_gcc-5.3.0/exportwrapper.c
-# Compiling /tmp/thanhtrung@thanhtrung-Vostro-15-3510_dpi_6670/linux_x86_64_gcc-13/exportwrapper.c
-# Loading /tmp/thanhtrung@thanhtrung-Vostro-15-3510_dpi_6670/linux_x86_64_gcc-13/vsim_auto_compile.so
+# Compiling /tmp/thanhtrung@thanhtrung-Vostro-15-3510_dpi_11139/linux_x86_64_gcc-5.3.0/exportwrapper.c
+# Compiling /tmp/thanhtrung@thanhtrung-Vostro-15-3510_dpi_11139/linux_x86_64_gcc-13/exportwrapper.c
+# Loading /tmp/thanhtrung@thanhtrung-Vostro-15-3510_dpi_11139/linux_x86_64_gcc-13/vsim_auto_compile.so
 # Loading ./uvm_dpi.so
 # coverage save -onexit -assert -code bcefs -directive -cvg coverage.ucdb
 #  add wave -r /apb_uart_test_top/*
@@ -69,7 +69,7 @@
 # 
 #       (Specify +UVM_NO_RELNOTES to turn off this notice)
 # 
-# UVM_INFO @ 0: reporter [RNTST] Running test apb_uart_reset_during_transfer_test...
+# UVM_INFO @ 0: reporter [RNTST] Running test apb_uart_reset_registers_test...
 # UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_agent.sv(22) @ 0: uvm_test_top.apb_uart_env.apb_agent [uvm_test_top.apb_uart_env.apb_agent] Build Phase in APB MASTER agent
 # UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_driver.sv(21) @ 0: uvm_test_top.apb_uart_env.apb_agent.driver [uvm_test_top.apb_uart_env.apb_agent.driver] Build Phase in APB MASTER driver
 # UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(24) @ 0: uvm_test_top.apb_uart_env.apb_agent.monitor [uvm_test_top.apb_uart_env.apb_agent.monitor] Build Phase in APB MASTER monitor
@@ -84,57 +84,57 @@
 # UVM_INFO ../sv/src/uart_vip/uart_rx/uart_rx_monitor.sv(37) @ 0: uvm_test_top.apb_uart_env.uart_rx.monitor [uvm_test_top.apb_uart_env.uart_rx.monitor] Connect Phase
 # UVM_INFO ../sv/src/uart_vip/uart_tx/uart_tx_driver.sv(39) @ 0: uvm_test_top.apb_uart_env.uart_tx.driver [uvm_test_top.apb_uart_env.uart_tx.driver] Connect Phase in TX driver
 # UVM_INFO /home/thanhtrung/Tools/Questasim/questasim/verilog_src/uvm-1.2/src/base/uvm_root.svh(579) @ 0: reporter [UVMTOP] UVM testbench topology:
-# -----------------------------------------------------------------------------
-# Name                         Type                                 Size  Value
-# -----------------------------------------------------------------------------
-# uvm_test_top                 apb_uart_reset_during_transfer_test  -     @351 
-#   apb_uart_env               apb_uart_env_base                    -     @364 
-#     apb_agent                apb_master_agent                     -     @402 
-#       coverage               apb_master_coverage                  -     @451 
-#         analysis_imp         uvm_analysis_imp                     -     @460 
-#       driver                 apb_master_driver                    -     @470 
-#         rsp_port             uvm_analysis_port                    -     @489 
-#         seq_item_port        uvm_seq_item_pull_port               -     @479 
-#       monitor                apb_master_monitor                   -     @442 
-#         master_monitor_port  uvm_analysis_port                    -     @641 
-#       sequencer              apb_master_sequencer                 -     @499 
-#         rsp_export           uvm_analysis_export                  -     @508 
-#         seq_item_export      uvm_seq_item_pull_imp                -     @626 
-#         arbitration_queue    array                                0     -    
-#         lock_queue           array                                0     -    
-#         num_last_reqs        integral                             32    'd1  
-#         num_last_rsps        integral                             32    'd1  
-#     scoreboard               apb_uart_scoreboard                  -     @429 
-#       apb_imp                uvm_analysis_imp_apb                 -     @660 
-#       uart_rx_imp            uvm_analysis_imp_uart_rx             -     @670 
-#       uart_tx_imp            uvm_analysis_imp_uart_tx             -     @680 
-#     uart_rx                  uart_rx_agent                        -     @411 
-#       driver                 uart_rx_driver                       -     @842 
-#         rsp_port             uvm_analysis_port                    -     @861 
-#         seq_item_port        uvm_seq_item_pull_port               -     @851 
-#       monitor                uart_rx_monitor                      -     @696 
-#         rx_monitor_port      uvm_analysis_port                    -     @874 
-#       sequencer              uart_rx_sequencer                    -     @705 
-#         rsp_export           uvm_analysis_export                  -     @714 
-#         seq_item_export      uvm_seq_item_pull_imp                -     @832 
-#         arbitration_queue    array                                0     -    
-#         lock_queue           array                                0     -    
-#         num_last_reqs        integral                             32    'd1  
-#         num_last_rsps        integral                             32    'd1  
-#     uart_tx                  uart_tx_agent                        -     @420 
-#       driver                 uart_tx_driver                       -     @1043
-#         rsp_port             uvm_analysis_port                    -     @1062
-#         seq_item_port        uvm_seq_item_pull_port               -     @1052
-#       monitor                uart_tx_monitor                      -     @897 
-#         tx_monitor_port      uvm_analysis_port                    -     @1075
-#       sequencer              uart_tx_sequencer                    -     @906 
-#         rsp_export           uvm_analysis_export                  -     @915 
-#         seq_item_export      uvm_seq_item_pull_imp                -     @1033
-#         arbitration_queue    array                                0     -    
-#         lock_queue           array                                0     -    
-#         num_last_reqs        integral                             32    'd1  
-#         num_last_rsps        integral                             32    'd1  
-# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------
+# Name                         Type                           Size  Value
+# -----------------------------------------------------------------------
+# uvm_test_top                 apb_uart_reset_registers_test  -     @351 
+#   apb_uart_env               apb_uart_env_base              -     @364 
+#     apb_agent                apb_master_agent               -     @402 
+#       coverage               apb_master_coverage            -     @451 
+#         analysis_imp         uvm_analysis_imp               -     @460 
+#       driver                 apb_master_driver              -     @470 
+#         rsp_port             uvm_analysis_port              -     @489 
+#         seq_item_port        uvm_seq_item_pull_port         -     @479 
+#       monitor                apb_master_monitor             -     @442 
+#         master_monitor_port  uvm_analysis_port              -     @641 
+#       sequencer              apb_master_sequencer           -     @499 
+#         rsp_export           uvm_analysis_export            -     @508 
+#         seq_item_export      uvm_seq_item_pull_imp          -     @626 
+#         arbitration_queue    array                          0     -    
+#         lock_queue           array                          0     -    
+#         num_last_reqs        integral                       32    'd1  
+#         num_last_rsps        integral                       32    'd1  
+#     scoreboard               apb_uart_scoreboard            -     @429 
+#       apb_imp                uvm_analysis_imp_apb           -     @660 
+#       uart_rx_imp            uvm_analysis_imp_uart_rx       -     @670 
+#       uart_tx_imp            uvm_analysis_imp_uart_tx       -     @680 
+#     uart_rx                  uart_rx_agent                  -     @411 
+#       driver                 uart_rx_driver                 -     @842 
+#         rsp_port             uvm_analysis_port              -     @861 
+#         seq_item_port        uvm_seq_item_pull_port         -     @851 
+#       monitor                uart_rx_monitor                -     @696 
+#         rx_monitor_port      uvm_analysis_port              -     @874 
+#       sequencer              uart_rx_sequencer              -     @705 
+#         rsp_export           uvm_analysis_export            -     @714 
+#         seq_item_export      uvm_seq_item_pull_imp          -     @832 
+#         arbitration_queue    array                          0     -    
+#         lock_queue           array                          0     -    
+#         num_last_reqs        integral                       32    'd1  
+#         num_last_rsps        integral                       32    'd1  
+#     uart_tx                  uart_tx_agent                  -     @420 
+#       driver                 uart_tx_driver                 -     @1043
+#         rsp_port             uvm_analysis_port              -     @1062
+#         seq_item_port        uvm_seq_item_pull_port         -     @1052
+#       monitor                uart_tx_monitor                -     @897 
+#         tx_monitor_port      uvm_analysis_port              -     @1075
+#       sequencer              uart_tx_sequencer              -     @906 
+#         rsp_export           uvm_analysis_export            -     @915 
+#         seq_item_export      uvm_seq_item_pull_imp          -     @1033
+#         arbitration_queue    array                          0     -    
+#         lock_queue           array                          0     -    
+#         num_last_reqs        integral                       32    'd1  
+#         num_last_rsps        integral                       32    'd1  
+# -----------------------------------------------------------------------
 # 
 # UVM_INFO ../sv/src/uart_vip/uart_tx/uart_tx_driver.sv(45) @ 0: uvm_test_top.apb_uart_env.uart_tx.driver [run_phase] Run Phase in TX driver
 # UVM_INFO ../sv/src/uart_vip/uart_tx/uart_tx_driver.sv(54) @ 0: uvm_test_top.apb_uart_env.uart_tx.driver [run_phase] baudrate = 115200 num_of_clk = 434.000000
@@ -144,6 +144,10 @@
 # UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(44) @ 0: uvm_test_top.apb_uart_env.apb_agent.monitor [uvm_test_top.apb_uart_env.apb_agent.monitor] Run Phase in APB MASTER monitor
 # UVM_INFO ../sv/src/uart_vip/uart_rx/uart_rx_driver.sv(57) @ 30: uvm_test_top.apb_uart_env.uart_rx.driver [UART_RX_DRV] Reset detected during transaction!
 # UVM_INFO ../sv/src/uart_vip/uart_tx/uart_tx_driver.sv(64) @ 30: uvm_test_top.apb_uart_env.uart_tx.driver [UART_TX_DRV] Reset detected!
+# UVM_INFO ../tb/test/apb_uart_test_libs.sv(916) @ 290: uvm_test_top [APB_UART_TEST] System Reset Done...
+# UVM_INFO ../tb/test/apb_uart_test_libs.sv(922) @ 290: uvm_test_top [APB_UART_TEST] 
+# Writing non-default config to registers...
+# 
 # UVM_INFO ../sv/src/seqs/apb_base_seq.sv(120) @ 290: uvm_test_top.apb_uart_env.apb_agent.sequencer@@apb_w_seq [APB_WRITE_SEQ] 
 # 
 # ====================
@@ -169,7 +173,7 @@
 # ====================
 # === [Write APB] ===
 # UART_TX_DATA - 0x0
-# Value: 0xaa
+# Value: 0xa5
 # ====================
 # 
 # UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(70) @ 430: uvm_test_top.apb_uart_env.apb_agent.monitor [APB_MASTER_MON] 
@@ -198,61 +202,63 @@
 # Write analysis port done!
 # ====================
 # 
-# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(72) @ 990: uvm_test_top.apb_uart_env.apb_agent.monitor [APB_MASTER_MON] 
+# UVM_INFO ../tb/test/apb_uart_test_libs.sv(970) @ 730: uvm_test_top [APB_UART_TEST] 
+# Checking registers after reset...
+# 
+# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(72) @ 790: uvm_test_top.apb_uart_env.apb_agent.monitor [APB_MASTER_MON] 
 # 
 # ====================
 # Read analysis port done!
 # ====================
 # 
-# UVM_INFO ../sv/src/seqs/apb_base_seq.sv(254) @ 1010: uvm_test_top.apb_uart_env.apb_agent.sequencer@@apb_r_seq [APB_SEQ] 
+# UVM_INFO ../sv/src/seqs/apb_base_seq.sv(254) @ 810: uvm_test_top.apb_uart_env.apb_agent.sequencer@@apb_r_seq [APB_SEQ] 
 # 
 # ====================
 # === Read CONFIG_REGISTER (0x8) ===
 # Value: 0xb
 # ====================
 # 
-# UVM_ERROR ../tb/test/apb_uart_test_libs.sv(964) @ 1010: uvm_test_top [TEST] FAILURE: Registers not reset! CFG: 0xb
-# UVM_INFO ../sv/src/seqs/apb_base_seq.sv(120) @ 1010: uvm_test_top.apb_uart_env.apb_agent.sequencer@@apb_w_seq [APB_WRITE_SEQ] 
+# UVM_ERROR ../tb/test/apb_uart_test_libs.sv(978) @ 810: uvm_test_top [APB_UART_TEST] FAIL: CFG_REG not reset to default! Got: 0xb, Expected: 0x0
+# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(72) @ 870: uvm_test_top.apb_uart_env.apb_agent.monitor [APB_MASTER_MON] 
 # 
 # ====================
-# === [Write APB] ===
-# CONFIG_REGISTER - 0x8
-# [8-bit Data, 1 Stop Bit, Parity Enabled ( Odd)]
+# Read analysis port done!
 # ====================
 # 
-# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(70) @ 1070: uvm_test_top.apb_uart_env.apb_agent.monitor [APB_MASTER_MON] 
+# UVM_INFO ../sv/src/seqs/apb_base_seq.sv(254) @ 890: uvm_test_top.apb_uart_env.apb_agent.sequencer@@apb_r_seq [APB_SEQ] 
 # 
 # ====================
-# Write analysis port done!
+# === Read UART_TX_DATA (0x0) ===
+# Value: 0xa5
 # ====================
 # 
-# UVM_INFO ../tb/inc/apb_uart_scoreboard.sv(111) @ 1090: uvm_test_top.apb_uart_env.scoreboard [SCB_APB_PASS] 
-# 
-# ==========================
-# Register CONFIG Update OK
-# ==========================
-# 
-# UVM_INFO ../sv/src/seqs/apb_base_seq.sv(120) @ 1090: uvm_test_top.apb_uart_env.apb_agent.sequencer@@apb_w_seq [APB_WRITE_SEQ] 
+# UVM_ERROR ../tb/test/apb_uart_test_libs.sv(989) @ 890: uvm_test_top [APB_UART_TEST] FAIL: TX_DATA not reset to default! Got: 0xa5, Expected: 0x0
+# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(72) @ 950: uvm_test_top.apb_uart_env.apb_agent.monitor [APB_MASTER_MON] 
 # 
 # ====================
-# === [Write APB] ===
-# UART_TX_DATA - 0x0
-# Value: 0x55
+# Read analysis port done!
 # ====================
 # 
-# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(70) @ 1150: uvm_test_top.apb_uart_env.apb_agent.monitor [APB_MASTER_MON] 
+# UVM_INFO ../sv/src/seqs/apb_base_seq.sv(254) @ 970: uvm_test_top.apb_uart_env.apb_agent.sequencer@@apb_r_seq [APB_SEQ] 
 # 
 # ====================
-# Write analysis port done!
+# === Read CONTROL_REGISTER (0xc) ===
+# Value: 0x1
 # ====================
 # 
-# UVM_INFO ../tb/inc/apb_uart_scoreboard.sv(76) @ 1170: uvm_test_top.apb_uart_env.scoreboard [SCB_APB_PASS] 
+# UVM_ERROR ../tb/test/apb_uart_test_libs.sv(1000) @ 970: uvm_test_top [APB_UART_TEST] FAIL: CTRL_REG not reset to default! Got: 0x1, Expected: 0x0
+# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(72) @ 1030: uvm_test_top.apb_uart_env.apb_agent.monitor [APB_MASTER_MON] 
 # 
-# ==========================
-# Register TX_DATA Update OK
-# ==========================
+# ====================
+# Read analysis port done!
+# ====================
 # 
-# UVM_INFO ../sv/src/seqs/apb_base_seq.sv(120) @ 1170: uvm_test_top.apb_uart_env.apb_agent.sequencer@@apb_w_seq [APB_WRITE_SEQ] 
+# UVM_ERROR ../tb/test/apb_uart_test_libs.sv(1010) @ 1050: uvm_test_top [APB_UART_TEST] FAIL: STT_REG not reset to default! Got: 0x3, Expected: tx_done=1, others=0
+# UVM_INFO ../tb/test/apb_uart_test_libs.sv(1019) @ 1050: uvm_test_top [APB_UART_TEST] PASS: TX idle after reset
+# UVM_INFO ../tb/test/apb_uart_test_libs.sv(1022) @ 1050: uvm_test_top [APB_UART_TEST] 
+# Recovering DUT after reset...
+# 
+# UVM_INFO ../sv/src/seqs/apb_base_seq.sv(120) @ 1050: uvm_test_top.apb_uart_env.apb_agent.sequencer@@apb_w_seq [APB_WRITE_SEQ] 
 # 
 # ====================
 # === [Write APB] ===
@@ -260,38 +266,66 @@
 # START UART TX
 # ====================
 # 
-# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(70) @ 1230: uvm_test_top.apb_uart_env.apb_agent.monitor [APB_MASTER_MON] 
+# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(70) @ 1110: uvm_test_top.apb_uart_env.apb_agent.monitor [APB_MASTER_MON] 
 # 
 # ====================
 # Write analysis port done!
 # ====================
 # 
-# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(72) @ 1310: uvm_test_top.apb_uart_env.apb_agent.monitor [APB_MASTER_MON] 
+# UVM_INFO ../sv/src/seqs/apb_base_seq.sv(120) @ 1130: uvm_test_top.apb_uart_env.apb_agent.sequencer@@apb_w_seq [APB_WRITE_SEQ] 
 # 
 # ====================
-# Read analysis port done!
+# === [Write APB] ===
+# UART_TX_DATA - 0x0
+# Value: 0x25
 # ====================
 # 
-# UVM_INFO ../tb/test/apb_uart_test_libs.sv(1003) @ 1330: uvm_test_top [TEST] SUCCESS: DUT Recovered and Completed Transaction
-# UVM_INFO /home/thanhtrung/Tools/Questasim/questasim/verilog_src/uvm-1.2/src/base/uvm_objection.svh(1270) @ 1330: reporter [TEST_DONE] 'run' phase is ready to proceed to the 'extract' phase
-# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_coverage.sv(51) @ 1330: uvm_test_top.apb_uart_env.apb_agent.coverage [COV_REPORT] APB Master Functional Coverage: 76.00%
-# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(82) @ 1330: uvm_test_top.apb_uart_env.apb_agent.monitor [APB_MASTER_MON] SUMMARY: 8 of APB transactions on the Bus have been collected.
-# UVM_INFO /home/thanhtrung/Tools/Questasim/questasim/verilog_src/uvm-1.2/src/base/uvm_report_server.svh(847) @ 1330: reporter [UVM/REPORT/SERVER] 
+# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(70) @ 1190: uvm_test_top.apb_uart_env.apb_agent.monitor [APB_MASTER_MON] 
+# 
+# ====================
+# Write analysis port done!
+# ====================
+# 
+# UVM_INFO ../tb/inc/apb_uart_scoreboard.sv(76) @ 1210: uvm_test_top.apb_uart_env.scoreboard [SCB_APB_PASS] 
+# 
+# ==========================
+# Register TX_DATA Update OK
+# ==========================
+# 
+# UVM_INFO ../sv/src/seqs/apb_base_seq.sv(120) @ 1210: uvm_test_top.apb_uart_env.apb_agent.sequencer@@apb_w_seq [APB_WRITE_SEQ] 
+# 
+# ====================
+# === [Write APB] ===
+# CONTROL_REGISTER - 0xc
+# START UART TX
+# ====================
+# 
+# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(70) @ 1270: uvm_test_top.apb_uart_env.apb_agent.monitor [APB_MASTER_MON] 
+# 
+# ====================
+# Write analysis port done!
+# ====================
+# 
+# UVM_INFO ../tb/test/apb_uart_test_libs.sv(1041) @ 1290: uvm_test_top [APB_UART_TEST] PASS: DUT recovered and completed transfer after reset
+# UVM_INFO /home/thanhtrung/Tools/Questasim/questasim/verilog_src/uvm-1.2/src/base/uvm_objection.svh(1270) @ 1290: reporter [TEST_DONE] 'run' phase is ready to proceed to the 'extract' phase
+# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_coverage.sv(51) @ 1290: uvm_test_top.apb_uart_env.apb_agent.coverage [COV_REPORT] APB Master Functional Coverage: 80.00%
+# UVM_INFO ../sv/src/apb_vip/apb_master/apb_master_monitor.sv(82) @ 1290: uvm_test_top.apb_uart_env.apb_agent.monitor [APB_MASTER_MON] SUMMARY: 10 of APB transactions on the Bus have been collected.
+# UVM_INFO /home/thanhtrung/Tools/Questasim/questasim/verilog_src/uvm-1.2/src/base/uvm_report_server.svh(847) @ 1290: reporter [UVM/REPORT/SERVER] 
 # --- UVM Report Summary ---
 # 
 # ** Report counts by severity
-# UVM_INFO :   47
+# UVM_INFO :   55
 # UVM_WARNING :    0
-# UVM_ERROR :    1
+# UVM_ERROR :    4
 # UVM_FATAL :    0
 # ** Report counts by id
-# [APB_MASTER_MON]     9
-# [APB_SEQ]     1
+# [APB_MASTER_MON]    11
+# [APB_SEQ]     3
+# [APB_UART_TEST]    10
 # [APB_WRITE_SEQ]     6
 # [COV_REPORT]     1
 # [RNTST]     1
-# [SCB_APB_PASS]     4
-# [TEST]     2
+# [SCB_APB_PASS]     3
 # [TEST_DONE]     1
 # [UART_RX_DRV]     1
 # [UART_TX_DRV]     1
@@ -309,7 +343,7 @@
 # [uvm_test_top.apb_uart_env.uart_tx.sequencer]     1
 # 
 # ** Note: $finish    : /home/thanhtrung/Tools/Questasim/questasim/verilog_src/uvm-1.2/src/base/uvm_root.svh(517)
-#    Time: 1330 ns  Iteration: 75  Instance: /apb_uart_test_top
+#    Time: 1290 ns  Iteration: 75  Instance: /apb_uart_test_top
 # Saving coverage database on exit...
-# End time: 07:36:24 on Jan 28,2026, Elapsed time: 0:00:05
+# End time: 18:56:52 on Feb 04,2026, Elapsed time: 0:00:05
 # Errors: 0, Warnings: 0

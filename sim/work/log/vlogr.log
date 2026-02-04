@@ -1,9 +1,9 @@
 QuestaSim-64 vlog 10.7c Compiler 2018.08 Aug 17 2018
-Start time: 07:36:17 on Jan 28,2026
+Start time: 18:56:44 on Feb 04,2026
 vlog -64 -f filelist_com.f -f filelist_rtl.f "+cover=bcefs" -l ./log/vlogr.log 
 -- Compiling module uart
 
 Top level modules:
 	uart
-End time: 07:36:17 on Jan 28,2026, Elapsed time: 0:00:00
+End time: 18:56:44 on Feb 04,2026, Elapsed time: 0:00:00
 Errors: 0, Warnings: 0

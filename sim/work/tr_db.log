@@ -576,3 +576,5 @@
   CREATE_STREAM @450 {NAME:apb_err_seq T:Transactions SCOPE:uvm_test_top.apb_uart_env.apb_agent.sequencer STREAM:1246}
   CREATE_STREAM @290 {NAME:apb_w_seq T:Transactions SCOPE:uvm_test_top.apb_uart_env.apb_agent.sequencer STREAM:1204}
   CREATE_STREAM @930 {NAME:apb_r_seq T:Transactions SCOPE:uvm_test_top.apb_uart_env.apb_agent.sequencer STREAM:1257}
+  CREATE_STREAM @290 {NAME:apb_w_seq T:Transactions SCOPE:uvm_test_top.apb_uart_env.apb_agent.sequencer STREAM:1214}
+  CREATE_STREAM @730 {NAME:apb_r_seq T:Transactions SCOPE:uvm_test_top.apb_uart_env.apb_agent.sequencer STREAM:1266}
