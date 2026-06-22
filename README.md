@@ -111,3 +111,28 @@ vsim -c apb_uart_test_top \
      -do "coverage save -onexit -assert -code bcefs -directive -cvg coverage.ucdb; add wave -r /*; run -all; quit" \
      +UVM_TESTNAME=uart_tx_rand_cfg_test
 ```
+
+### 4. Automated Regression & Bug Search (Recommended)
+You can compile, clean, run all tests, inject bugs, and get a structured PASS/FAIL report table using the automated runner script.
+
+* **Run all tests with no bug (Golden run)**:
+  ```bash
+  ./run_tests.sh -bug none
+  ```
+
+* **Run all tests with a specific bug injected (e.g., BUG14)**:
+  ```bash
+  ./run_tests.sh -bug BUG14
+  ```
+
+* **Run a single test**:
+  ```bash
+  ./run_tests.sh -test apb_uart_simple_test -bug none
+  ```
+
+* **Clean work/log folders before compiling and running**:
+  ```bash
+  ./run_tests.sh -clean -bug none
+  ```
+
+After execution, the runner displays a summary report showing the status of each test, including error details and code locations for any failures.

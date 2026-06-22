@@ -1,0 +1,16 @@
+# Questa/ModelSim
+# Keep scripts/filelists
+!sim/work/*.sh
+!sim/work/*.f
+
+# Ignore simulator generated files
+sim/work/log/*
+sim/work/work/*
+
+*.vcd
+*.wlf
+*.log
+transcript
+*.qdb
+*.qpg
+*.qtl

@@ -1,4 +1,4 @@
-`define BUG14
+// `define NO_BUG
 module uart (
 	input clk,    // Clock
 	input reset_n,  // Asynchronous reset active low
